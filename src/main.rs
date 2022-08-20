@@ -14,15 +14,15 @@ fn main() {
         .add_system(bevy::window::close_on_esc)
         .add_system_set(
             SystemSet::new()
-            .with_run_criteria(FixedTimestep::step(1.0 / 60.0))
-            .with_system(move_player.before(check_collisions))
-            .with_system(move_objects.before(check_collisions))
-            .with_system(check_collisions)
+                .with_run_criteria(FixedTimestep::step(1.0 / 60.0))
+                .with_system(move_player.before(check_collisions))
+                .with_system(move_objects.before(check_collisions))
+                .with_system(check_collisions),
         )
         .add_system_set(
             SystemSet::new()
-            .with_run_criteria(FixedTimestep::step(1.0))
-            .with_system(spawn_object)
+                .with_run_criteria(FixedTimestep::step(1.0))
+                .with_system(spawn_object),
         )
         .run();
 }
@@ -35,8 +35,8 @@ fn setup(mut commands: Commands) {
     commands
         .spawn()
         .insert(Collider {})
-        .insert(Player{})
-        .insert(Stats{size: 20.})
+        .insert(Player {})
+        .insert(Stats { size: 20. })
         .insert_bundle(SpriteBundle {
             transform: Transform {
                 translation: Vec3::new(0.0, 0.0, 0.0),
@@ -54,59 +54,64 @@ fn setup(mut commands: Commands) {
 // Systems can query data in an SQL-like fashion
 //
 // Update the player position
-fn move_player(keyboard_input: Res<Input<KeyCode>>,
+fn move_player(
+    keyboard_input: Res<Input<KeyCode>>,
     windows: Res<Windows>,
     mut query: Query<&mut Transform, With<Player>>,
-    mut attached_query: Query<&mut Transform, (With<Attached>, Without<Player>)>) {
-        // The player's movement directions
-        let mut movement_x = 0.;
-        let mut movement_y = 0.;
+    mut attached_query: Query<&mut Transform, (With<Attached>, Without<Player>)>,
+) {
+    // The player's movement directions
+    let mut movement_x = 0.;
+    let mut movement_y = 0.;
 
-        let mut player_transform = query.single_mut();
+    let mut player_transform = query.single_mut();
 
-        // Add the different directions. This way pressing left and right cancels out
-        if keyboard_input.pressed(KeyCode::Left) {
-            movement_x -= 1.;
-        }
-        if keyboard_input.pressed(KeyCode::Right) {
-            movement_x += 1.;
-        }
-        if keyboard_input.pressed(KeyCode::Down) {
-            movement_y -= 1.;
-        }
-        if keyboard_input.pressed(KeyCode::Up) {
-            movement_y += 1.;
-        }
-
-        // Get the bounds of the screen
-        let left_bound = - windows.primary().width() as f32 / 2. + player_transform.scale.x / 2.;
-        let right_bound = windows.primary().width() as f32 / 2. - player_transform.scale.x / 2.;
-        let bottom_bound = - windows.primary().height() as f32 / 2. + player_transform.scale.y / 2.;
-        let top_bound = windows.primary().height() as f32 / 2. - player_transform.scale.y / 2.;
-
-        // Move the player and clamp it to the screen
-        player_transform.translation.x = (player_transform.translation.x + movement_x * PLAYER_SPEED).clamp(left_bound, right_bound);
-        player_transform.translation.y = (player_transform.translation.y + movement_y * PLAYER_SPEED).clamp(bottom_bound, top_bound);
-
-        // Move the attached objects
-        // There's no need to clamp here, as these are allowed to move outside of the screen
-        for mut attached_transform in attached_query.iter_mut() {
-            attached_transform.translation.x += movement_x * PLAYER_SPEED;
-            attached_transform.translation.y += movement_y * PLAYER_SPEED;
-        }
+    // Add the different directions. This way pressing left and right cancels out
+    if keyboard_input.pressed(KeyCode::Left) {
+        movement_x -= 1.;
+    }
+    if keyboard_input.pressed(KeyCode::Right) {
+        movement_x += 1.;
+    }
+    if keyboard_input.pressed(KeyCode::Down) {
+        movement_y -= 1.;
+    }
+    if keyboard_input.pressed(KeyCode::Up) {
+        movement_y += 1.;
     }
 
-fn move_objects(mut query: Query<(&mut Transform, &mut Velocity), (With<Object>, Without<Attached>)>) {
+    // Get the bounds of the screen
+    let left_bound = -windows.primary().width() as f32 / 2. + player_transform.scale.x / 2.;
+    let right_bound = windows.primary().width() as f32 / 2. - player_transform.scale.x / 2.;
+    let bottom_bound = -windows.primary().height() as f32 / 2. + player_transform.scale.y / 2.;
+    let top_bound = windows.primary().height() as f32 / 2. - player_transform.scale.y / 2.;
+
+    // Move the player and clamp it to the screen
+    player_transform.translation.x =
+        (player_transform.translation.x + movement_x * PLAYER_SPEED).clamp(left_bound, right_bound);
+    player_transform.translation.y =
+        (player_transform.translation.y + movement_y * PLAYER_SPEED).clamp(bottom_bound, top_bound);
+
+    // Move the attached objects
+    // There's no need to clamp here, as these are allowed to move outside of the screen
+    for mut attached_transform in attached_query.iter_mut() {
+        attached_transform.translation.x += movement_x * PLAYER_SPEED;
+        attached_transform.translation.y += movement_y * PLAYER_SPEED;
+    }
+}
+
+fn move_objects(
+    mut query: Query<(&mut Transform, &mut Velocity), (With<Object>, Without<Attached>)>,
+) {
     for (mut transform, velocity) in query.iter_mut() {
         transform.translation.x += 1. * velocity.x as f32;
         transform.translation.y += 1. * velocity.y as f32;
-        let (_,_,z) = transform.rotation.to_euler(EulerRot::XYZ);
+        let (_, _, z) = transform.rotation.to_euler(EulerRot::XYZ);
         transform.rotation = Quat::from_rotation_z(z + velocity.rotation);
     }
 }
 
-fn spawn_object(mut commands: Commands,
-    windows: Res<Windows>,) {
+fn spawn_object(mut commands: Commands, windows: Res<Windows>) {
     let width = windows.primary().width() as f32;
     let height = windows.primary().height() as f32;
 
@@ -118,7 +123,7 @@ fn spawn_object(mut commands: Commands,
     commands
         .spawn()
         .insert(Collider {})
-        .insert(Object{})
+        .insert(Object {})
         .insert_bundle(SpriteBundle {
             transform: Transform {
                 translation: position,
@@ -142,28 +147,41 @@ fn check_collisions(
     mut commands: Commands,
     mut player_query: Query<(&mut Stats, &mut Transform), With<Player>>,
     attached_query: Query<(Entity, &Transform), (With<Attached>, Without<Player>)>,
-    object_query: Query<(Entity, &Transform), (With<Object>, With<Collider>, Without<Player>, Without<Attached>)>,
+    object_query: Query<
+        (Entity, &Transform),
+        (
+            With<Object>,
+            With<Collider>,
+            Without<Player>,
+            Without<Attached>,
+        ),
+    >,
 ) {
     // Get the player's position
     let (mut player_stats, mut player_transform) = player_query.single_mut();
-
-    
 
     // Check for collisions with player
     for (object_entity, object_transform) in object_query.iter() {
         //Check for collisions with attached objects
         for (attached_entity, attached_transform) in attached_query.iter() {
-            if attached_transform.translation.distance(object_transform.translation) < (object_transform.scale.x + attached_transform.scale.x) / 2. {
+            if attached_transform
+                .translation
+                .distance(object_transform.translation)
+                < (object_transform.scale.x + attached_transform.scale.x) / 2.
+            {
                 // Attach the object to the player
-                commands.entity(object_entity).insert(Attached{});
+                commands.entity(object_entity).insert(Attached {});
             }
         }
         // Check if the player and the object are colliding
-        if player_transform.translation.distance(object_transform.translation) < ((player_transform.scale.x + object_transform.scale.x) as f32) / 2. {
+        if player_transform
+            .translation
+            .distance(object_transform.translation)
+            < ((player_transform.scale.x + object_transform.scale.x) as f32) / 2.
+        {
             // Attach the object to the player
             // commands.entity(object_entity).despawn();
-            commands.entity(object_entity).insert(Attached{});
+            commands.entity(object_entity).insert(Attached {});
         }
     }
-
 }
