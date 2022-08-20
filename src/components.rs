@@ -14,6 +14,9 @@ pub struct Item {}
 pub struct Collider {}
 
 #[derive(Component)]
+pub struct Attached {}
+
+#[derive(Component)]
 pub struct Velocity {
     pub x: f32,
     pub y: f32,

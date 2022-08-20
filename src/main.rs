@@ -56,7 +56,8 @@ fn setup(mut commands: Commands) {
 // Update the player position
 fn move_player(keyboard_input: Res<Input<KeyCode>>,
     windows: Res<Windows>,
-    mut query: Query<&mut Transform, With<Player>>) {
+    mut query: Query<&mut Transform, With<Player>>,
+    mut attached_query: Query<&mut Transform, (With<Attached>, Without<Player>)>) {
         // The player's movement directions
         let mut movement_x = 0.;
         let mut movement_y = 0.;
@@ -86,9 +87,16 @@ fn move_player(keyboard_input: Res<Input<KeyCode>>,
         // Move the player and clamp it to the screen
         player_transform.translation.x = (player_transform.translation.x + movement_x * PLAYER_SPEED).clamp(left_bound, right_bound);
         player_transform.translation.y = (player_transform.translation.y + movement_y * PLAYER_SPEED).clamp(bottom_bound, top_bound);
+
+        // Move the attached objects
+        // There's no need to clamp here, as these are allowed to move outside of the screen
+        for mut attached_transform in attached_query.iter_mut() {
+            attached_transform.translation.x += movement_x * PLAYER_SPEED;
+            attached_transform.translation.y += movement_y * PLAYER_SPEED;
+        }
     }
 
-fn move_objects(mut query: Query<(&mut Transform, &mut Velocity), With<Object>>) {
+fn move_objects(mut query: Query<(&mut Transform, &mut Velocity), (With<Object>, Without<Attached>)>) {
     for (mut transform, velocity) in query.iter_mut() {
         transform.translation.x += 1. * velocity.x as f32;
         transform.translation.y += 1. * velocity.y as f32;
@@ -133,21 +141,29 @@ fn spawn_object(mut commands: Commands,
 fn check_collisions(
     mut commands: Commands,
     mut player_query: Query<(&mut Stats, &mut Transform), With<Player>>,
-    object_query: Query<(Entity, &Transform), (With<Object>, With<Collider>, Without<Player>)>,
+    attached_query: Query<(Entity, &Transform), (With<Attached>, Without<Player>)>,
+    object_query: Query<(Entity, &Transform), (With<Object>, With<Collider>, Without<Player>, Without<Attached>)>,
 ) {
     // Get the player's position
     let (mut player_stats, mut player_transform) = player_query.single_mut();
 
-    // Check for collisions with objects
+    
+
+    // Check for collisions with player
     for (object_entity, object_transform) in object_query.iter() {
+        //Check for collisions with attached objects
+        for (attached_entity, attached_transform) in attached_query.iter() {
+            if attached_transform.translation.distance(object_transform.translation) < (object_transform.scale.x + attached_transform.scale.x) / 2. {
+                // Attach the object to the player
+                commands.entity(object_entity).insert(Attached{});
+            }
+        }
         // Check if the player and the object are colliding
         if player_transform.translation.distance(object_transform.translation) < ((player_transform.scale.x + object_transform.scale.x) as f32) / 2. {
-            // Remove the object
-            commands.entity(object_entity).despawn();
-
-            // Increase the player's size
-            player_stats.size += 1.;
-            player_transform.scale = Vec3::new(player_stats.size as f32, player_stats.size as f32, 0.);
+            // Attach the object to the player
+            // commands.entity(object_entity).despawn();
+            commands.entity(object_entity).insert(Attached{});
         }
     }
+
 }
