@@ -11,6 +11,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_startup_system(setup)
+        .add_system(bevy::window::close_on_esc)
         .add_system_set(
             SystemSet::new()
             .with_run_criteria(FixedTimestep::step(1.0 / 60.0))
