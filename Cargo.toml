@@ -6,3 +6,4 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 bevy = "0.8"
+rand = "0.8.5"

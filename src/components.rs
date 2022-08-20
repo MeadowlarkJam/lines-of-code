@@ -5,16 +5,23 @@ use bevy::prelude::*;
 pub struct Player {}
 
 #[derive(Component)]
-pub struct Enemy {}
-
-#[derive(Component)]
-pub struct Bullet {}
+pub struct Object {}
 
 #[derive(Component)]
 pub struct Item {}
 
+#[derive(Component)]
+pub struct Collider {}
+
+#[derive(Component)]
+pub struct Velocity {
+    pub x: f32,
+    pub y: f32,
+    pub rotation: f32
+}
+
 // Components can hold data too, though
 #[derive(Component)]
 pub struct Stats {
-    pub health: i32,
+    pub size: f32,
 }
