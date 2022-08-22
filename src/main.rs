@@ -1,4 +1,5 @@
-use bevy::{prelude::*, time::FixedTimestep};
+use bevy::{diagnostic::EntityCountDiagnosticsPlugin, prelude::*, time::FixedTimestep};
+use bevy_editor_pls::prelude::*;
 
 const PLAYER_COLOR: Color = Color::rgb(0.7, 0.7, 1.0);
 const PLAYER_SIZE: Vec3 = Vec3::new(20.0, 20.0, 0.0);
@@ -8,11 +9,16 @@ mod components;
 use components::*;
 mod absorption_systems;
 use absorption_systems::*;
+mod enemy_spawners;
+use enemy_spawners::*;
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        .add_plugin(EditorPlugin)
+        .add_plugin(EntityCountDiagnosticsPlugin)
         .add_startup_system(setup)
+        .add_startup_system(spawn_shieldy)
         .add_system(bevy::window::close_on_esc)
         .add_system_set(
             SystemSet::new()
@@ -26,6 +32,12 @@ fn main() {
                 .with_run_criteria(FixedTimestep::step(1.))
                 .with_system(spawn_object),
         )
+        .add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(1. / 2.))
+                .with_system(clean_objects),
+        )
+        .add_system(camera_follow.after(move_player))
         .run();
 }
 
@@ -38,7 +50,6 @@ fn setup(mut commands: Commands) {
         .spawn()
         .insert(Collider {})
         .insert(Player {})
-        .insert(Stats { size: 1 })
         .insert_bundle(SpriteBundle {
             transform: Transform {
                 translation: Vec3::new(0.0, 0.0, 0.0),
@@ -59,10 +70,13 @@ fn setup(mut commands: Commands) {
         .insert(Collider {})
         .insert(Player {})
         .insert(PlayerRoot {})
-        .insert(Stats { size: 1 })
+        .insert(Stats {
+            size: 1,
+            health: 100,
+        })
         .insert_bundle(SpriteBundle {
             transform: Transform {
-                translation: Vec3::new(0.0, 0.0, 0.0),
+                translation: Vec3::new(0.0, 0.0, 1.0),
                 scale: PLAYER_SIZE,
                 ..default()
             },
@@ -116,6 +130,17 @@ fn move_player(
         (player_transform.translation.y + movement_y * PLAYER_SPEED).clamp(bottom_bound, top_bound);
 }
 
+// Currently the camera_query returns several cameras and crashes
+fn camera_follow(
+    player_query: Query<&Transform, (With<PlayerRoot>, Without<Camera>)>,
+    mut camera_query: Query<&mut Transform, With<Camera>>,
+) {
+    let player_transform = player_query.single();
+    let mut camera_transform = camera_query.single_mut();
+
+    camera_transform.translation = player_transform.translation;
+}
+
 fn move_objects(
     mut query: Query<
         (&mut Transform, &mut Velocity),
@@ -160,68 +185,25 @@ fn spawn_object(mut commands: Commands, windows: Res<Windows>) {
             y: rand::random::<f32>() * 2. - 1.,
             rotation: rand::random::<f32>() * 0.2 - 0.1,
         })
-        .insert(Stats { size: 1 });
+        .insert(Stats { size: 1, health: 1 });
 }
 
-// fn check_collisions(
-//     mut commands: Commands,
-//     collider_query: Query<
-//         (
-//             Entity,
-//             &Transform,
-//             Option<&Parent>,
-//             &mut Stats,
-//             Option<&Player>,
-//         ),
-//         (With<Collider>,),
-//     >,
-// ) {
-//     for (entity, transform, parent, stats, is_player) in collider_query.iter() {
-//         for (other_entity, other_transform, other_parent, other_stats, other_is_player) in
-//             collider_query.iter()
-//         {
-//             if entity == other_entity {
-//                 continue;
-//             }
+// Clean all the objects that are the length of the diagonal of the screen away from the player
+fn clean_objects(
+    mut commands: Commands,
+    windows: Res<Windows>,
+    object_query: Query<(Entity, &Transform), (With<Object>, Without<Children>, Without<Parent>)>,
+    player_query: Query<&Transform, With<PlayerRoot>>,
+) {
+    let distance = (windows.primary().width().powf(2.) as f32
+        + windows.primary().height().powf(2.) as f32)
+        .sqrt();
 
-//             // Check if the entities are attached to the same parent
-//             if let (Some(parent), Some(other_parent)) = (parent, other_parent) {
-//                 if parent.id() == other_parent.id() {
-//                     continue;
-//                 }
-//             }
+    let player_transform = player_query.single();
 
-//             // Check if the entities are overlapping
-//             let distance = transform.translation.distance(other_transform.translation);
-//             // TODO: Proper distance calculation
-//             if distance < 20. {
-//                 // Deciding who wins:
-//                 // The clump with the bigger size value wins
-//                 // During ties the player wins, other wise it's just the first entity
-//                 //
-//                 // What to do when something wins
-//                 // - The winner gets the size of the loser added to it
-//                 // - Iterate over every object of the loser, set the parent to the winner
-//                 // - (In the case of the player, add the Player component to every object of the loser)
-
-//                 // Check if the player is involved
-//                 if is_player.is_some() || other_is_player.is_some() {
-//                     // In a tie the player always wins
-//                     // Check which one is the player
-//                     match is_player.is_some() {
-//                         true => {
-//                             if stats.size >= other_stats.size {
-//                                 // The player wins
-//                                 // Add the size of the loser to the player
-//                                 commands.entity(entity).insert(Stats {
-//                                     size: stats.size + other_stats.size,
-//                                 });
-//                             }
-//                         }
-//                         false => {}
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
+    for entity in object_query.iter() {
+        if player_transform.translation.distance(entity.1.translation) > distance * 2. {
+            commands.entity(entity.0).despawn_recursive();
+        }
+    }
+}

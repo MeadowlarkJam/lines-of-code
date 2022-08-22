@@ -8,6 +8,12 @@ pub struct Player {}
 pub struct PlayerRoot {}
 
 #[derive(Component)]
+pub struct Enemy {}
+
+#[derive(Component)]
+pub struct EnemyRoot {}
+
+#[derive(Component)]
 pub struct Object {}
 
 #[derive(Component)]
@@ -28,4 +34,5 @@ pub struct Velocity {
 #[derive(Component)]
 pub struct Stats {
     pub size: i32,
+    pub health: i32,
 }
