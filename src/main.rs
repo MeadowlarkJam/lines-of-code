@@ -43,7 +43,15 @@ fn main() {
 
 fn setup(mut commands: Commands) {
     // Init the camera entity
-    commands.spawn_bundle(Camera2dBundle::default());
+    commands
+        .spawn_bundle(Camera2dBundle {
+            transform: Transform {
+                translation: Vec3::new(0.0, 0.0, 1.0),
+                ..default()
+            },
+            ..default()
+        })
+        .insert(MainCamera);
 
     // Create a player that is on top of the root. This makes sure that we only need to attach to other non-root blocks and can query for the root-transform later on
     let player_root_entity = commands
@@ -124,20 +132,17 @@ fn move_player(
     let top_bound = windows.primary().height() as f32 / 2. - player_transform.scale.y / 2.;
 
     // Move the player and clamp it to the screen
-    player_transform.translation.x =
-        (player_transform.translation.x + movement_x * PLAYER_SPEED).clamp(left_bound, right_bound);
-    player_transform.translation.y =
-        (player_transform.translation.y + movement_y * PLAYER_SPEED).clamp(bottom_bound, top_bound);
+    player_transform.translation.x = (player_transform.translation.x + movement_x * PLAYER_SPEED);
+    player_transform.translation.y = (player_transform.translation.y + movement_y * PLAYER_SPEED);
 }
 
 // Currently the camera_query returns several cameras and crashes
 fn camera_follow(
-    player_query: Query<&Transform, (With<PlayerRoot>, Without<Camera>)>,
-    mut camera_query: Query<&mut Transform, With<Camera>>,
+    player_query: Query<&Transform, (With<PlayerRoot>, Without<MainCamera>)>,
+    mut camera_query: Query<&mut Transform, (With<MainCamera>, Without<PlayerRoot>)>,
 ) {
     let player_transform = player_query.single();
     let mut camera_transform = camera_query.single_mut();
-
     camera_transform.translation = player_transform.translation;
 }
 

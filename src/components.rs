@@ -36,3 +36,6 @@ pub struct Stats {
     pub size: i32,
     pub health: i32,
 }
+
+#[derive(Component)]
+pub struct MainCamera;
