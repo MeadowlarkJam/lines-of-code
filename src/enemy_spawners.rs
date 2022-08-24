@@ -5,18 +5,21 @@ use bevy::prelude::*;
 pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
     let position = Vec3::new(0., 0., 0.);
 
-    let zapper_handle = asset_server.get_handle("zapper.png");
+    let shield_handle = asset_server.get_handle("shield.png");
     let debris_handle = asset_server.get_handle("debris.png");
+    let forcefield_handle = asset_server.get_handle("forcefield.png");
 
     let root = spawn_empty_node(&mut commands, position, 0., debris_handle.clone());
     commands
         .entity(root)
         .insert(Collider {})
         .insert(Enemy {})
-        .insert(EnemyRoot {})
+        .insert(EnemyRoot {
+            enemy_type: EnemyType::Shieldy,
+        })
         .insert(Stats {
             size: 7,
-            health: 10000,
+            health: 100,
         })
         .insert(Velocity {
             x: 0.,
@@ -55,8 +58,8 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
         &mut commands,
         Vec3::new(16., 8., 0.),
         rand::random::<f32>() * 2. * std::f32::consts::PI,
-        zapper_handle.clone(),
-        zapper_handle.clone(),
+        shield_handle.clone(),
+        forcefield_handle.clone(),
         Shield {
             health: 10,
             cooldown: 3.,
@@ -73,8 +76,8 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
         &mut commands,
         Vec3::new(-16., -8., 0.),
         rand::random::<f32>() * 2. * std::f32::consts::PI,
-        zapper_handle.clone(),
-        zapper_handle.clone(),
+        shield_handle.clone(),
+        forcefield_handle.clone(),
         Shield {
             health: 100,
             cooldown: 3.,

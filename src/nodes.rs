@@ -34,7 +34,6 @@ pub fn spawn_shield_node<'a>(
         commands,
         Vec3::new(0., 0., 0.),
         std::f32::consts::PI / 4.,
-        Vec3::new(30., 30., 1.),
         field_asset,
     );
     let shield_node = spawn_empty_node(commands, position, rotation, asset);
@@ -49,7 +48,6 @@ pub fn spawn_shield_forcefield<'a>(
     commands: &'a mut Commands,
     position: Vec3,
     rotation: f32,
-    scale: Vec3,
     asset: Handle<Image>,
 ) -> Entity {
     let forcefield_node = commands
@@ -57,14 +55,11 @@ pub fn spawn_shield_forcefield<'a>(
         .insert_bundle(SpriteBundle {
             transform: Transform {
                 translation: position,
-                scale: scale,
                 rotation: Quat::from_rotation_z(rotation),
+                scale: Vec3::new(1.5, 1.5, 1.5),
                 ..default()
             },
-            sprite: Sprite {
-                color: Color::rgba(0., 0., 1., 0.5),
-                ..default()
-            },
+            texture: asset,
             ..default()
         })
         .id();

@@ -10,8 +10,16 @@ pub struct PlayerRoot {}
 #[derive(Component)]
 pub struct Enemy {}
 
+pub enum EnemyType {
+    Shieldy,
+    Zappy,
+    Boomy,
+}
+
 #[derive(Component)]
-pub struct EnemyRoot {}
+pub struct EnemyRoot {
+    pub enemy_type: EnemyType,
+}
 
 #[derive(Component)]
 pub struct Object {}

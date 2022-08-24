@@ -37,6 +37,7 @@ fn main() {
                 .with_run_criteria(FixedTimestep::step(1.0 / 60.0))
                 .with_system(move_player.before(check_attachment))
                 .with_system(move_objects.before(check_attachment))
+                .with_system(velocity_dropoff.after(move_objects))
                 .with_system(check_attachment),
         )
         // .add_system_set(
@@ -66,6 +67,8 @@ fn load_assets(mut commands: Commands, mut asset_server: Res<AssetServer>) {
     asset_server.load::<Image, &str>("zapper.png");
     asset_server.load::<Image, &str>("debris.png");
     asset_server.load::<Image, &str>("player.png");
+    asset_server.load::<Image, &str>("forcefield.png");
+    asset_server.load::<Image, &str>("shield.png");
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -310,15 +313,21 @@ fn shoot_player_zapper(
                     // Draw squares, interpolated between the two points
                     for i in 1..distance.floor() as i32 {
                         let t = i as f32 / distance.floor();
-                        let x = zapper_computed_transform.translation.x + (shootable_transform.translation.x - zapper_computed_transform.translation.x) * t;
-                        let y = zapper_computed_transform.translation.y + (shootable_transform.translation.y - zapper_computed_transform.translation.y) * t;
+                        let x = zapper_computed_transform.translation.x
+                            + (shootable_transform.translation.x
+                                - zapper_computed_transform.translation.x)
+                                * t;
+                        let y = zapper_computed_transform.translation.y
+                            + (shootable_transform.translation.y
+                                - zapper_computed_transform.translation.y)
+                                * t;
                         commands
                             .spawn()
                             .insert_bundle(SpriteBundle {
                                 transform: Transform {
                                     translation: Vec3::new(x, y, 0.),
                                     scale: Vec3::new(2., 2., 0.),
-                                ..default()
+                                    ..default()
                                 },
                                 sprite: Sprite {
                                     color: Color::rgb(1., 1., 0.),
@@ -326,7 +335,7 @@ fn shoot_player_zapper(
                                 },
                                 ..default()
                             })
-                            .insert(ZapEffect{});
+                            .insert(ZapEffect {});
                     }
 
                     // Only one shot per cooldown
@@ -366,13 +375,69 @@ fn check_hits(
 
 fn check_death(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     mut player_query: Query<(&mut Stats, Entity), (With<PlayerRoot>, Without<EnemyRoot>)>,
-    mut enemy_query: Query<(&mut Stats, Entity), (With<EnemyRoot>, Without<PlayerRoot>)>,
+    mut enemy_query: Query<(&mut Stats, Entity, &EnemyRoot, &Transform), Without<PlayerRoot>>,
 ) {
-    for (mut enemy_stats, enemy_entity) in enemy_query.iter_mut() {
+    for (mut enemy_stats, enemy_entity, enemy_root, enemy_transform) in enemy_query.iter_mut() {
         if enemy_stats.health <= 0 {
+            let debris_handle = asset_server.get_handle("debris.png");
+            match enemy_root.enemy_type {
+                EnemyType::Shieldy => {
+                    let shield_handle = asset_server.get_handle("shield.png");
+                    let forcefield_handle = asset_server.get_handle("forcefield.png");
+                    // Drop a shield and 2 debris
+                    let shield = spawn_shield_node(
+                        &mut commands,
+                        enemy_transform.translation,
+                        0.,
+                        shield_handle,
+                        forcefield_handle,
+                        Shield {
+                            health: 100,
+                            cooldown: 3.,
+                            cooldown_timer: 0.,
+                        },
+                    );
+
+                    commands
+                        .entity(shield)
+                        .insert(Velocity {
+                            x: rand::random::<f32>() * 2. - 1.,
+                            y: rand::random::<f32>() * 2. - 1.,
+                            rotation: rand::random::<f32>() * 0.1,
+                        })
+                        .insert(Object {});
+
+                    for _ in 0..2 {
+                        // Spawn debris
+                        let debris = spawn_empty_node(
+                            &mut commands,
+                            enemy_transform.translation,
+                            rand::random::<f32>() * TAU,
+                            debris_handle.clone(),
+                        );
+
+                        commands.entity(debris).insert(Object {}).insert(Velocity {
+                            x: rand::random::<f32>() * 2. - 1.,
+                            y: rand::random::<f32>() * 2. - 1.,
+                            rotation: rand::random::<f32>() * 0.2,
+                        });
+                    }
+                }
+                EnemyType::Zappy => todo!(),
+                EnemyType::Boomy => todo!(),
+            }
             commands.entity(enemy_entity).despawn_recursive();
         }
+    }
+}
+
+fn velocity_dropoff(mut query: Query<(&mut Velocity), With<Object>>) {
+    for (mut velocity) in query.iter_mut() {
+        velocity.x *= 0.99;
+        velocity.y *= 0.99;
+        velocity.rotation *= 0.99;
     }
 }
 
