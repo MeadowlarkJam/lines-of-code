@@ -1,15 +1,15 @@
 use super::{Player, PlayerRoot};
 use crate::{
     components::{Collider, Object, Stats, ZapEffect, Zapper},
+    consts::{ASSET_SPRITES_PLAYER, PLAYER_SPEED},
     enemy::{Enemy, EnemyRoot},
     events::Hit,
 };
 use bevy::prelude::*;
 
-const PLAYER_SPEED: f32 = 2.;
-
 pub fn spawn_player_system(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let player_handle = asset_server.get_handle("player.png");
+    let player_handle = asset_server.get_handle(ASSET_SPRITES_PLAYER);
+
     // Create a player that is on top of the root. This makes sure that we only need to attach to other non-root blocks and can query for the root-transform later on
     let player_root_entity = commands
         .spawn()
@@ -60,16 +60,16 @@ pub fn move_player_system(
     let mut player_transform = query.single_mut();
 
     // Add the different directions. This way pressing left and right cancels out
-    if keyboard_input.pressed(KeyCode::Left) {
+    if keyboard_input.any_pressed([KeyCode::A, KeyCode::Left]) {
         movement_x -= 1.;
     }
-    if keyboard_input.pressed(KeyCode::Right) {
+    if keyboard_input.any_pressed([KeyCode::D, KeyCode::Right]) {
         movement_x += 1.;
     }
-    if keyboard_input.pressed(KeyCode::Down) {
+    if keyboard_input.any_pressed([KeyCode::S, KeyCode::Down]) {
         movement_y -= 1.;
     }
-    if keyboard_input.pressed(KeyCode::Up) {
+    if keyboard_input.any_pressed([KeyCode::W, KeyCode::Up]) {
         movement_y += 1.;
     }
 
@@ -89,7 +89,7 @@ pub fn shoot_player_zapper_system(
         if zapper_stats.cooldown_timer > 0. {
             zapper_stats.cooldown_timer -= time.delta_seconds();
         } else {
-            for (shootable_transform, shootable_entity, shootable_parent) in shootable_query.iter()
+            for (shootable_transform, _shootable_entity, shootable_parent) in shootable_query.iter()
             {
                 let distance = zapper_transform
                     .compute_transform()
@@ -143,7 +143,6 @@ pub fn shoot_player_zapper_system(
 }
 
 pub fn check_hits_system(
-    mut commands: Commands,
     mut event_hit: EventReader<Hit>,
     mut player_query: Query<(&mut Stats, Entity), (With<PlayerRoot>, Without<EnemyRoot>)>,
     mut enemy_query: Query<(&mut Stats, Entity), (With<EnemyRoot>, Without<PlayerRoot>)>,

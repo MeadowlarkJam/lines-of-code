@@ -1,5 +1,6 @@
 use crate::{
     components::{Collider, Object, Stats, Velocity, Zapper},
+    consts::{ASSET_SPRITES_DEBRIS, ASSET_SPRITES_ZAPPER},
     enemy::Enemy,
     nodes::{spawn_empty_node, spawn_laser_turret},
     player::{Player, PlayerRoot},
@@ -21,7 +22,7 @@ pub fn move_objects_system(
     }
 }
 
-pub fn spawn_object_system(
+pub fn _spawn_object_system(
     mut commands: Commands,
     windows: Res<Windows>,
     player_query: Query<&Transform, With<PlayerRoot>>,
@@ -61,7 +62,7 @@ pub fn spawn_object_system(
 }
 
 // Clean all the objects that are the length of the diagonal of the screen away from the player
-pub fn clean_objects_system(
+pub fn _clean_objects_system(
     mut commands: Commands,
     windows: Res<Windows>,
     object_query: Query<(Entity, &Transform), (With<Object>, Without<Children>, Without<Parent>)>,
@@ -82,7 +83,7 @@ pub fn clean_objects_system(
 
 pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Place two zappers
-    let zapper_handle = asset_server.get_handle("zapper.png");
+    let zapper_handle = asset_server.get_handle(ASSET_SPRITES_ZAPPER);
 
     let starter_zapper = spawn_laser_turret(
         &mut commands,
@@ -123,7 +124,7 @@ pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<Asse
     commands.entity(starter_zapper).insert(Object);
 
     // Some uniformly distributed debris around the player
-    let debris_handle: Handle<Image> = asset_server.get_handle("debris.png");
+    let debris_handle: Handle<Image> = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
 
     for _ in 0..5 {
         // Spawn a node with debris

@@ -1,7 +1,7 @@
 use crate::{camera::MainCamera, player::PlayerRoot};
 use bevy::prelude::*;
 
-pub fn spawn_camera_system(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn spawn_camera_system(mut commands: Commands) {
     commands
         .spawn_bundle(Camera2dBundle {
             transform: Transform {

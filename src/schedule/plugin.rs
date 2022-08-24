@@ -7,6 +7,5 @@ pub struct SchedulePlugin;
 impl Plugin for SchedulePlugin {
     fn build(&self, app: &mut App) {
         app.add_state(GameState::SplashScreen);
-        // .add_state(MenuState::Disabled);
     }
 }

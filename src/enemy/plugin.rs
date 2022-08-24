@@ -1,3 +1,5 @@
+use crate::schedule::GameState;
+
 use super::systems::spawn_shieldy_enemy_system;
 use bevy::prelude::*;
 
@@ -8,6 +10,10 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(spawn_shieldy_enemy_system.label(EnemySystem));
+        app.add_system_set(
+            SystemSet::on_enter(GameState::InGame)
+                .label(EnemySystem)
+                .with_system(spawn_shieldy_enemy_system),
+        );
     }
 }

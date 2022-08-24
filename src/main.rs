@@ -2,10 +2,10 @@ use bevy::{diagnostic::EntityCountDiagnosticsPlugin, prelude::*, render::texture
 use bevy_editor_pls::prelude::*;
 
 mod components;
-use components::*;
-mod nodes;
-use nodes::*;
+mod consts;
+mod despawn_recursive;
 mod events;
+mod nodes;
 use events::*;
 
 // Plugins
@@ -15,6 +15,7 @@ mod enemy;
 mod object;
 mod player;
 mod schedule;
+mod ui;
 
 fn main() {
     App::new()
@@ -25,6 +26,7 @@ fn main() {
         .add_plugin(object::ObjectPlugin)
         .add_plugin(player::PlayerPlugin)
         .add_plugin(schedule::SchedulePlugin)
+        .add_plugin(ui::UiPlugin)
         // ----- Bevy -----
         .add_event::<Hit>()
         .add_event::<SoundEvent>()

@@ -1,6 +1,7 @@
 use super::{Enemy, EnemyRoot};
 use crate::{
     components::{Collider, Shield, Stats, Velocity},
+    consts::{ASSET_SPRITES_DEBRIS, ASSET_SPRITES_ZAPPER},
     nodes::{spawn_empty_node, spawn_shield_node},
 };
 use bevy::prelude::*;
@@ -19,8 +20,8 @@ pub fn _check_enemy_death_system(
 pub fn spawn_shieldy_enemy_system(mut commands: Commands, asset_server: Res<AssetServer>) {
     let position = Vec3::new(0., 0., 0.);
 
-    let zapper_handle = asset_server.get_handle("zapper.png");
-    let debris_handle = asset_server.get_handle("debris.png");
+    let zapper_handle = asset_server.get_handle(ASSET_SPRITES_ZAPPER);
+    let debris_handle = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
 
     let root = spawn_empty_node(&mut commands, position, 0., debris_handle.clone());
     commands
@@ -67,7 +68,6 @@ pub fn spawn_shieldy_enemy_system(mut commands: Commands, asset_server: Res<Asse
         Vec3::new(16., 8., 0.),
         rand::random::<f32>() * 2. * std::f32::consts::PI,
         zapper_handle.clone(),
-        zapper_handle.clone(),
         Shield {
             health: 10,
             cooldown: 3.,
@@ -81,7 +81,6 @@ pub fn spawn_shieldy_enemy_system(mut commands: Commands, asset_server: Res<Asse
         &mut commands,
         Vec3::new(-16., -8., 0.),
         rand::random::<f32>() * 2. * std::f32::consts::PI,
-        zapper_handle.clone(),
         zapper_handle.clone(),
         Shield {
             health: 100,
