@@ -44,7 +44,7 @@ fn main() {
                 .with_run_criteria(FixedTimestep::step(1. / 2.))
                 .with_system(clean_objects),
         )
-        //.add_system(camera_follow.after(move_player))
+        .add_system(camera_follow.after(move_player))
         
         .run();
 }
@@ -206,13 +206,16 @@ fn move_objects(
     }
 }
 
-fn spawn_object(mut commands: Commands, windows: Res<Windows>) {
+fn spawn_object(mut commands: Commands, 
+    windows: Res<Windows>,
+player_query: Query<&Transform, With<PlayerRoot>>) {
+    let player_transform = player_query.single();
     let width = windows.primary().width() as f32;
     let height = windows.primary().height() as f32;
 
-    // Randome position on the screen
-    let x = rand::random::<f32>() * width - width / 2.;
-    let y = rand::random::<f32>() * height - height / 2.;
+    // Random position on the screen
+    let x = player_transform.translation.x + rand::random::<f32>() * width - width / 2.;
+    let y = player_transform.translation.y + rand::random::<f32>() * height - height / 2.;
     let position = Vec3::new(x, y, 0.);
 
     commands
