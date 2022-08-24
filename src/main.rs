@@ -10,8 +10,8 @@ const PLAYER_SPEED: f32 = 2.;
 
 mod components;
 use components::*;
-mod absorption_systems;
-use absorption_systems::*;
+mod attachment_systems;
+use attachment_systems::*;
 mod enemy_spawners;
 use enemy_spawners::*;
 mod nodes;
@@ -54,6 +54,11 @@ fn main() {
         .add_system(shoot_player_zapper)
         .add_system(check_hits.after(shoot_player_zapper))
         .add_system(check_death.after(check_hits))
+        .add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(1. / 4.))
+                .with_system(remove_zap_effect),
+        )
         .run();
 }
 
@@ -279,17 +284,19 @@ fn shoot_player_zapper(
     time: Res<Time>,
     mut event_hit: EventWriter<Hit>,
     mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Player>>,
-    shootable_query: Query<(&Transform, Entity, &Parent), With<Enemy>>
+    shootable_query: Query<(&Transform, Entity, &Parent), With<Enemy>>,
 ) {
     for (zapper_transform, mut zapper_stats) in zapper_query.iter_mut() {
         if zapper_stats.cooldown_timer > 0. {
             zapper_stats.cooldown_timer -= time.delta_seconds();
         } else {
-            for (shootable_transform, shootable_entity, shootable_parent) in shootable_query.iter() {
+            for (shootable_transform, shootable_entity, shootable_parent) in shootable_query.iter()
+            {
                 let distance = zapper_transform
                     .compute_transform()
                     .translation
                     .distance(shootable_transform.translation);
+                // If there is a hit
                 if distance < zapper_stats.range {
                     zapper_stats.cooldown_timer = zapper_stats.fire_rate;
                     event_hit.send(Hit {
@@ -297,11 +304,42 @@ fn shoot_player_zapper(
                         damage: zapper_stats.damage,
                     });
 
+                    // Draw a yellow rectangle between the target and the zapper
+                    let zapper_computed_transform = zapper_transform.compute_transform();
+
+                    // Draw squares, interpolated between the two points
+                    for i in 1..distance.floor() as i32 {
+                        let t = i as f32 / distance.floor();
+                        let x = zapper_computed_transform.translation.x + (shootable_transform.translation.x - zapper_computed_transform.translation.x) * t;
+                        let y = zapper_computed_transform.translation.y + (shootable_transform.translation.y - zapper_computed_transform.translation.y) * t;
+                        commands
+                            .spawn()
+                            .insert_bundle(SpriteBundle {
+                                transform: Transform {
+                                    translation: Vec3::new(x, y, 0.),
+                                    scale: Vec3::new(2., 2., 0.),
+                                ..default()
+                                },
+                                sprite: Sprite {
+                                    color: Color::rgb(1., 1., 0.),
+                                    ..default()
+                                },
+                                ..default()
+                            })
+                            .insert(ZapEffect{});
+                    }
+
                     // Only one shot per cooldown
                     break;
                 }
             }
         }
+    }
+}
+
+fn remove_zap_effect(mut commands: Commands, mut query: Query<Entity, With<ZapEffect>>) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn();
     }
 }
 

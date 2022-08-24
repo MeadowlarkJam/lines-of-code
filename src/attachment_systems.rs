@@ -25,6 +25,7 @@ pub fn check_attachment(
                 < ((player_transform.compute_transform().scale.x + attachable_transform.scale.x)
                     / 2.)
                     * 8.
+            // The sprites go past the scale of the object, which is just 1x1 with an 8x8 sprite
             {
                 // We only check for attachments using the children, since we created a seperate child
                 // on top of the root in the beginning

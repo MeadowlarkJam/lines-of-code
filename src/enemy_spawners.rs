@@ -16,7 +16,7 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
         .insert(EnemyRoot {})
         .insert(Stats {
             size: 7,
-            health: 100,
+            health: 10000,
         })
         .insert(Velocity {
             x: 0.,

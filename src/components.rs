@@ -62,3 +62,6 @@ pub struct Zapper {
     pub cooldown_timer: f32,
     pub range: f32,
 }
+
+#[derive(Component)]
+pub struct ZapEffect {}
