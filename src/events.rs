@@ -10,4 +10,5 @@ pub enum Sound {
     Hit,
     Zap,
 }
+
 pub struct SoundEvent(Sound);

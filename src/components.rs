@@ -1,26 +1,13 @@
 use bevy::prelude::*;
 
-// An empty component is basically just a flag for the querying
 #[derive(Component)]
-pub struct Player {}
+pub struct Object;
 
 #[derive(Component)]
-pub struct PlayerRoot {}
+pub struct Item;
 
 #[derive(Component)]
-pub struct Enemy {}
-
-#[derive(Component)]
-pub struct EnemyRoot {}
-
-#[derive(Component)]
-pub struct Object {}
-
-#[derive(Component)]
-pub struct Item {}
-
-#[derive(Component)]
-pub struct Collider {}
+pub struct Collider;
 
 #[derive(Component)]
 pub struct Velocity {
@@ -36,9 +23,6 @@ pub struct Stats {
     pub size: i32,
     pub health: i32,
 }
-
-#[derive(Component)]
-pub struct MainCamera;
 
 // Powerup nodes
 #[derive(Component)]
@@ -64,4 +48,4 @@ pub struct Zapper {
 }
 
 #[derive(Component)]
-pub struct ZapEffect {}
+pub struct ZapEffect;

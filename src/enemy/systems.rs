@@ -1,8 +1,22 @@
-use crate::components::*;
-use crate::nodes::*;
+use super::{Enemy, EnemyRoot};
+use crate::{
+    components::{Collider, Shield, Stats, Velocity},
+    nodes::{spawn_empty_node, spawn_shield_node},
+};
 use bevy::prelude::*;
 
-pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn _check_enemy_death_system(
+    mut commands: Commands,
+    mut query: Query<(&Stats, Entity), With<EnemyRoot>>,
+) {
+    for (stats, entity) in query.iter_mut() {
+        if stats.health <= 0 {
+            commands.entity(entity).despawn_recursive();
+        }
+    }
+}
+
+pub fn spawn_shieldy_enemy_system(mut commands: Commands, asset_server: Res<AssetServer>) {
     let position = Vec3::new(0., 0., 0.);
 
     let zapper_handle = asset_server.get_handle("zapper.png");
@@ -11,9 +25,9 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
     let root = spawn_empty_node(&mut commands, position, 0., debris_handle.clone());
     commands
         .entity(root)
-        .insert(Collider {})
-        .insert(Enemy {})
-        .insert(EnemyRoot {})
+        .insert(Collider)
+        .insert(Enemy)
+        .insert(EnemyRoot)
         .insert(Stats {
             size: 7,
             health: 10000,
@@ -34,8 +48,8 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
         );
         commands
             .entity(element_right)
-            .insert(Collider {})
-            .insert(Enemy {});
+            .insert(Collider)
+            .insert(Enemy);
 
         let element_left = spawn_empty_node(
             &mut commands,
@@ -43,10 +57,7 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
             rand::random::<f32>() * 2. * std::f32::consts::PI,
             debris_handle.clone(),
         );
-        commands
-            .entity(element_left)
-            .insert(Collider {})
-            .insert(Enemy {});
+        commands.entity(element_left).insert(Collider).insert(Enemy);
 
         commands.entity(root).add_child(element_right);
         commands.entity(root).add_child(element_left);
@@ -64,10 +75,7 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
         },
     );
 
-    commands
-        .entity(shield_right)
-        .insert(Collider {})
-        .insert(Enemy {});
+    commands.entity(shield_right).insert(Collider).insert(Enemy);
 
     let shield_left = spawn_shield_node(
         &mut commands,
@@ -81,10 +89,7 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
             cooldown_timer: 0.,
         },
     );
-    commands
-        .entity(shield_left)
-        .insert(Collider {})
-        .insert(Enemy {});
+    commands.entity(shield_left).insert(Collider).insert(Enemy);
 
     commands.entity(root).add_child(shield_right);
     commands.entity(root).add_child(shield_left);
