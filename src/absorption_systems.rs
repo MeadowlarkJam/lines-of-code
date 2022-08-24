@@ -8,13 +8,7 @@ pub fn check_attachment(
     mut player_root_query: Query<(Entity, &Transform, &mut Stats), With<PlayerRoot>>,
     mut attachable_query: Query<
         (Entity, &mut Transform),
-        (
-            Without<Parent>,
-            Without<Children>,
-            With<Object>,
-            Without<Player>,
-            Without<PlayerRoot>,
-        ),
+        (With<Object>, Without<Player>, Without<PlayerRoot>),
     >,
 ) {
     // We need the transform of the root, since everything is relative to it and when adding children we need to revert it first
@@ -34,6 +28,7 @@ pub fn check_attachment(
                 // on top of the root in the beginning
                 commands.entity(root_entity).add_child(attachable_entity);
                 commands.entity(attachable_entity).insert(Player {});
+                commands.entity(attachable_entity).remove::<Object>();
 
                 attachable_transform.scale = Vec3::new(
                     attachable_transform.scale.x / root_transform.scale.x,

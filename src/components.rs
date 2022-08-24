@@ -39,3 +39,25 @@ pub struct Stats {
 
 #[derive(Component)]
 pub struct MainCamera;
+
+// Powerup nodes
+#[derive(Component)]
+pub struct Shield {
+    // Health of the shield until the cooldown starts
+    pub health: i32,
+    // Cooldown in seconds
+    pub cooldown: f32,
+    pub cooldown_timer: f32,
+}
+
+#[derive(Component)]
+pub struct ShieldForcefield {
+    pub active: bool,
+}
+
+#[derive(Component)]
+pub struct Laser {
+    pub damage: i32,
+    pub fire_rate: f32,
+    pub cooldown_timer: f32,
+}

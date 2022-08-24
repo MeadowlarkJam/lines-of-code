@@ -1,4 +1,4 @@
-use bevy::{diagnostic::EntityCountDiagnosticsPlugin, prelude::*, time::FixedTimestep};
+use bevy::{diagnostic::EntityCountDiagnosticsPlugin, prelude::*, time::FixedTimestep, render::texture::ImageSettings};
 use bevy_editor_pls::prelude::*;
 
 const PLAYER_COLOR: Color = Color::rgb(0.7, 0.7, 1.0);
@@ -11,13 +11,20 @@ mod absorption_systems;
 use absorption_systems::*;
 mod enemy_spawners;
 use enemy_spawners::*;
+mod nodes;
+use nodes::*;
+mod asset_resources;
+use asset_resources::*;
 
 fn main() {
     App::new()
+    .insert_resource(ImageSettings::default_nearest())
+
         .add_plugins(DefaultPlugins)
         .add_plugin(EditorPlugin)
         .add_plugin(EntityCountDiagnosticsPlugin)
-        .add_startup_system(setup)
+        .add_startup_system(load_assets.before(setup))
+        .add_startup_system(setup.before(spawn_shieldy))
         .add_startup_system(spawn_shieldy)
         .add_system(bevy::window::close_on_esc)
         .add_system_set(
@@ -37,11 +44,17 @@ fn main() {
                 .with_run_criteria(FixedTimestep::step(1. / 2.))
                 .with_system(clean_objects),
         )
-        .add_system(camera_follow.after(move_player))
+        //.add_system(camera_follow.after(move_player))
+        
         .run();
 }
 
-fn setup(mut commands: Commands) {
+fn load_assets(mut commands: Commands,
+               mut asset_server: Res<AssetServer>) {
+    asset_server.load::<Image, &str>("zapper.png");
+}
+
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     // Init the camera entity
     commands
         .spawn_bundle(Camera2dBundle {
@@ -95,6 +108,39 @@ fn setup(mut commands: Commands) {
             ..default()
         })
         .add_child(player_root_entity);
+
+    let zapper_handle = asset_server.get_handle("zapper.png");
+
+    let starter_shield = spawn_shield_node(
+        &mut commands,
+        Vec3::new(100., 100., 0.),
+        0.,
+        Vec3::new(2., 2., 1.),
+        zapper_handle.clone(),
+        zapper_handle.clone(),
+        Shield {
+            health: 10,
+            cooldown: 3.,
+            cooldown_timer: 0.,
+        },
+    );
+
+    commands.entity(starter_shield).insert(Object {});
+
+    let starter_zapper = spawn_laser_turret(
+        &mut commands,
+        Vec3::new(-100., 100., 0.),
+        0.,
+        Vec3::new(2., 2., 1.),
+        zapper_handle.clone(),
+        Laser {
+            damage: 10,
+            fire_rate: 1.,
+            cooldown_timer: 0.,
+        },
+    );
+
+    commands.entity(starter_zapper).insert(Object {});
 }
 
 // Systems can query data in an SQL-like fashion
