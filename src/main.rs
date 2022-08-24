@@ -1,9 +1,12 @@
-use bevy::{diagnostic::EntityCountDiagnosticsPlugin, prelude::*, time::FixedTimestep, render::texture::ImageSettings};
+use std::f32::consts::TAU;
+
+use bevy::{
+    diagnostic::EntityCountDiagnosticsPlugin, prelude::*, render::texture::ImageSettings,
+    time::FixedTimestep,
+};
 use bevy_editor_pls::prelude::*;
 
-const PLAYER_COLOR: Color = Color::rgb(0.7, 0.7, 1.0);
-const PLAYER_SIZE: Vec3 = Vec3::new(20.0, 20.0, 0.0);
-const PLAYER_SPEED: f32 = 3.;
+const PLAYER_SPEED: f32 = 2.;
 
 mod components;
 use components::*;
@@ -13,18 +16,20 @@ mod enemy_spawners;
 use enemy_spawners::*;
 mod nodes;
 use nodes::*;
-mod asset_resources;
-use asset_resources::*;
+mod events;
+use events::*;
 
 fn main() {
     App::new()
-    .insert_resource(ImageSettings::default_nearest())
-
+        .insert_resource(ImageSettings::default_nearest())
+        .add_event::<Hit>()
+        .add_event::<SoundEvent>()
         .add_plugins(DefaultPlugins)
         .add_plugin(EditorPlugin)
         .add_plugin(EntityCountDiagnosticsPlugin)
         .add_startup_system(load_assets.before(setup))
-        .add_startup_system(setup.before(spawn_shieldy))
+        .add_startup_system(setup.before(spawn_area))
+        .add_startup_system(spawn_area)
         .add_startup_system(spawn_shieldy)
         .add_system(bevy::window::close_on_esc)
         .add_system_set(
@@ -34,24 +39,28 @@ fn main() {
                 .with_system(move_objects.before(check_attachment))
                 .with_system(check_attachment),
         )
-        .add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(1.))
-                .with_system(spawn_object),
-        )
-        .add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(1. / 2.))
-                .with_system(clean_objects),
-        )
+        // .add_system_set(
+        //     SystemSet::new()
+        //         .with_run_criteria(FixedTimestep::step(1.))
+        //         .with_system(spawn_object),
+        // )
+        // .add_system_set(
+        //     SystemSet::new()
+        //         .with_run_criteria(FixedTimestep::step(1. / 2.))
+        //         .with_system(clean_objects)
+        //         .with_system(spawn_shieldy),
+        // )
         .add_system(camera_follow.after(move_player))
-        
+        .add_system(shoot_player_zapper)
+        .add_system(check_hits.after(shoot_player_zapper))
+        .add_system(check_death.after(check_hits))
         .run();
 }
 
-fn load_assets(mut commands: Commands,
-               mut asset_server: Res<AssetServer>) {
+fn load_assets(mut commands: Commands, mut asset_server: Res<AssetServer>) {
     asset_server.load::<Image, &str>("zapper.png");
+    asset_server.load::<Image, &str>("debris.png");
+    asset_server.load::<Image, &str>("player.png");
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -60,12 +69,16 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .spawn_bundle(Camera2dBundle {
             transform: Transform {
                 translation: Vec3::new(0.0, 0.0, 1.0),
+                scale: Vec3::new(0.25, 0.25, 0.25),
                 ..default()
             },
             ..default()
         })
         .insert(MainCamera);
+}
 
+pub fn spawn_area(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let player_handle = asset_server.get_handle("player.png");
     // Create a player that is on top of the root. This makes sure that we only need to attach to other non-root blocks and can query for the root-transform later on
     let player_root_entity = commands
         .spawn()
@@ -74,13 +87,9 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .insert_bundle(SpriteBundle {
             transform: Transform {
                 translation: Vec3::new(0.0, 0.0, 0.0),
-                scale: Vec3::new(1.0, 1.0, 1.0),
                 ..default()
             },
-            sprite: Sprite {
-                color: PLAYER_COLOR,
-                ..default()
-            },
+            texture: player_handle.clone(),
             ..default()
         })
         .id();
@@ -98,49 +107,76 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         .insert_bundle(SpriteBundle {
             transform: Transform {
                 translation: Vec3::new(0.0, 0.0, 1.0),
-                scale: PLAYER_SIZE,
                 ..default()
             },
-            sprite: Sprite {
-                color: PLAYER_COLOR,
-                ..default()
-            },
+            texture: player_handle.clone(),
             ..default()
         })
         .add_child(player_root_entity);
 
+    // Place two zappers
     let zapper_handle = asset_server.get_handle("zapper.png");
-
-    let starter_shield = spawn_shield_node(
-        &mut commands,
-        Vec3::new(100., 100., 0.),
-        0.,
-        Vec3::new(2., 2., 1.),
-        zapper_handle.clone(),
-        zapper_handle.clone(),
-        Shield {
-            health: 10,
-            cooldown: 3.,
-            cooldown_timer: 0.,
-        },
-    );
-
-    commands.entity(starter_shield).insert(Object {});
 
     let starter_zapper = spawn_laser_turret(
         &mut commands,
-        Vec3::new(-100., 100., 0.),
+        Vec3::new(
+            rand::random::<f32>() * 200. - 100.,
+            rand::random::<f32>() * 200. - 100.,
+            0.,
+        ),
         0.,
-        Vec3::new(2., 2., 1.),
         zapper_handle.clone(),
-        Laser {
+        Zapper {
             damage: 10,
             fire_rate: 1.,
             cooldown_timer: 0.,
+            range: 100.,
         },
     );
 
     commands.entity(starter_zapper).insert(Object {});
+
+    let starter_zapper = spawn_laser_turret(
+        &mut commands,
+        Vec3::new(
+            rand::random::<f32>() * 200. - 100.,
+            rand::random::<f32>() * 200. - 100.,
+            0.,
+        ),
+        0.,
+        zapper_handle.clone(),
+        Zapper {
+            damage: 10,
+            fire_rate: 1.,
+            cooldown_timer: 0.,
+            range: 100.,
+        },
+    );
+
+    commands.entity(starter_zapper).insert(Object {});
+
+    // Some uniformly distributed debris around the player
+    let debris_handle: Handle<Image> = asset_server.get_handle("debris.png");
+
+    for _ in 0..5 {
+        // Spawn a node with debris
+        let debris = spawn_empty_node(
+            &mut commands,
+            Vec3::new(
+                rand::random::<f32>() * 200. - 100.,
+                rand::random::<f32>() * 200. - 100.,
+                0.,
+            ),
+            rand::random::<f32>() * TAU,
+            debris_handle.clone(),
+        );
+
+        commands.entity(debris).insert(Object {}).insert(Velocity {
+            x: 0.,
+            y: 0.,
+            rotation: rand::random::<f32>() * 0.2,
+        });
+    }
 }
 
 // Systems can query data in an SQL-like fashion
@@ -148,7 +184,6 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 // Update the player position
 fn move_player(
     keyboard_input: Res<Input<KeyCode>>,
-    windows: Res<Windows>,
     mut query: Query<&mut Transform, With<PlayerRoot>>,
 ) {
     // The player's movement directions
@@ -170,12 +205,6 @@ fn move_player(
     if keyboard_input.pressed(KeyCode::Up) {
         movement_y += 1.;
     }
-
-    // Get the bounds of the screen
-    let left_bound = -windows.primary().width() as f32 / 2. + player_transform.scale.x / 2.;
-    let right_bound = windows.primary().width() as f32 / 2. - player_transform.scale.x / 2.;
-    let bottom_bound = -windows.primary().height() as f32 / 2. + player_transform.scale.y / 2.;
-    let top_bound = windows.primary().height() as f32 / 2. - player_transform.scale.y / 2.;
 
     // Move the player and clamp it to the screen
     player_transform.translation.x = (player_transform.translation.x + movement_x * PLAYER_SPEED);
@@ -206,9 +235,11 @@ fn move_objects(
     }
 }
 
-fn spawn_object(mut commands: Commands, 
+fn spawn_object(
+    mut commands: Commands,
     windows: Res<Windows>,
-player_query: Query<&Transform, With<PlayerRoot>>) {
+    player_query: Query<&Transform, With<PlayerRoot>>,
+) {
     let player_transform = player_query.single();
     let width = windows.primary().width() as f32;
     let height = windows.primary().height() as f32;
@@ -222,6 +253,7 @@ player_query: Query<&Transform, With<PlayerRoot>>) {
         .spawn()
         .insert(Collider {})
         .insert(Object {})
+        .insert(Enemy {})
         .insert_bundle(SpriteBundle {
             transform: Transform {
                 translation: position,
@@ -240,6 +272,70 @@ player_query: Query<&Transform, With<PlayerRoot>>) {
             rotation: rand::random::<f32>() * 0.2 - 0.1,
         })
         .insert(Stats { size: 1, health: 1 });
+}
+
+fn shoot_player_zapper(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut event_hit: EventWriter<Hit>,
+    mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Player>>,
+    shootable_query: Query<(&Transform, Entity, &Parent), With<Enemy>>
+) {
+    for (zapper_transform, mut zapper_stats) in zapper_query.iter_mut() {
+        if zapper_stats.cooldown_timer > 0. {
+            zapper_stats.cooldown_timer -= time.delta_seconds();
+        } else {
+            for (shootable_transform, shootable_entity, shootable_parent) in shootable_query.iter() {
+                let distance = zapper_transform
+                    .compute_transform()
+                    .translation
+                    .distance(shootable_transform.translation);
+                if distance < zapper_stats.range {
+                    zapper_stats.cooldown_timer = zapper_stats.fire_rate;
+                    event_hit.send(Hit {
+                        target: shootable_parent.get(),
+                        damage: zapper_stats.damage,
+                    });
+
+                    // Only one shot per cooldown
+                    break;
+                }
+            }
+        }
+    }
+}
+
+fn check_hits(
+    mut commands: Commands,
+    mut event_hit: EventReader<Hit>,
+    mut player_query: Query<(&mut Stats, Entity), (With<PlayerRoot>, Without<EnemyRoot>)>,
+    mut enemy_query: Query<(&mut Stats, Entity), (With<EnemyRoot>, Without<PlayerRoot>)>,
+) {
+    let (mut player_stats, player_entity) = player_query.single_mut();
+    for hit in event_hit.iter() {
+        if hit.target == player_entity {
+            player_stats.health -= hit.damage;
+        } else {
+            match enemy_query.get_mut(hit.target) {
+                Ok((mut enemy_stats, _)) => {
+                    enemy_stats.health -= hit.damage;
+                }
+                Err(_) => {}
+            }
+        }
+    }
+}
+
+fn check_death(
+    mut commands: Commands,
+    mut player_query: Query<(&mut Stats, Entity), (With<PlayerRoot>, Without<EnemyRoot>)>,
+    mut enemy_query: Query<(&mut Stats, Entity), (With<EnemyRoot>, Without<PlayerRoot>)>,
+) {
+    for (mut enemy_stats, enemy_entity) in enemy_query.iter_mut() {
+        if enemy_stats.health <= 0 {
+            commands.entity(enemy_entity).despawn_recursive();
+        }
+    }
 }
 
 // Clean all the objects that are the length of the diagonal of the screen away from the player

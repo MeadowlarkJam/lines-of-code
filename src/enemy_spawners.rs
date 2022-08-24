@@ -1,20 +1,14 @@
 use crate::components::*;
 use crate::nodes::*;
-use crate::asset_resources::*;
 use bevy::prelude::*;
 
 pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let position = Vec3::new(0., 0., 999.);
+    let position = Vec3::new(0., 0., 0.);
 
     let zapper_handle = asset_server.get_handle("zapper.png");
+    let debris_handle = asset_server.get_handle("debris.png");
 
-    let root = spawn_empty_node(
-        &mut commands,
-        position,
-        0.,
-        Vec3::new(2., 2., 1.),
-        zapper_handle.clone()
-    );
+    let root = spawn_empty_node(&mut commands, position, 0., debris_handle.clone());
     commands
         .entity(root)
         .insert(Collider {})
@@ -34,10 +28,9 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
     for i in 1..=2 {
         let element_right = spawn_empty_node(
             &mut commands,
-            Vec3::new(i as f32, 0., 0.),
+            Vec3::new(i as f32 * 8., 0., 0.),
             rand::random::<f32>() * 2. * std::f32::consts::PI,
-            Vec3::new(1., 1., 1.),
-            zapper_handle.clone(),
+            debris_handle.clone(),
         );
         commands
             .entity(element_right)
@@ -46,10 +39,9 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
 
         let element_left = spawn_empty_node(
             &mut commands,
-            Vec3::new(-i as f32, 0., 0.),
+            Vec3::new(-i as f32 * 8., 0., 0.),
             rand::random::<f32>() * 2. * std::f32::consts::PI,
-            Vec3::new(1., 1., 1.),
-            zapper_handle.clone(),
+            debris_handle.clone(),
         );
         commands
             .entity(element_left)
@@ -61,9 +53,8 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
     }
     let shield_right = spawn_shield_node(
         &mut commands,
-        Vec3::new(2., 1., 0.),
+        Vec3::new(16., 8., 0.),
         rand::random::<f32>() * 2. * std::f32::consts::PI,
-        Vec3::new(1., 1., 1.),
         zapper_handle.clone(),
         zapper_handle.clone(),
         Shield {
@@ -80,13 +71,12 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>) {
 
     let shield_left = spawn_shield_node(
         &mut commands,
-        Vec3::new(-2., -1., 0.),
+        Vec3::new(-16., -8., 0.),
         rand::random::<f32>() * 2. * std::f32::consts::PI,
-        Vec3::new(1., 1., 1.),
         zapper_handle.clone(),
         zapper_handle.clone(),
         Shield {
-            health: 10,
+            health: 100,
             cooldown: 3.,
             cooldown_timer: 0.,
         },

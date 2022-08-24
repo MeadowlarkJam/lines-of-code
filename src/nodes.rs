@@ -1,5 +1,3 @@
-use std::f32::consts::{FRAC_PI_4, PI};
-
 use crate::components::*;
 use bevy::prelude::*;
 
@@ -7,7 +5,6 @@ pub fn spawn_empty_node<'a>(
     commands: &'a mut Commands,
     position: Vec3,
     rotation: f32,
-    scale: Vec3,
     asset: Handle<Image>,
 ) -> Entity {
     commands
@@ -15,7 +12,6 @@ pub fn spawn_empty_node<'a>(
         .insert_bundle(SpriteBundle {
             transform: Transform {
                 translation: position,
-                scale: scale,
                 rotation: Quat::from_rotation_z(rotation),
                 ..default()
             },
@@ -29,7 +25,6 @@ pub fn spawn_shield_node<'a>(
     commands: &'a mut Commands,
     position: Vec3,
     rotation: f32,
-    scale: Vec3,
     asset: Handle<Image>,
     field_asset: Handle<Image>,
     shield_stats: Shield,
@@ -39,10 +34,10 @@ pub fn spawn_shield_node<'a>(
         commands,
         Vec3::new(0., 0., 0.),
         std::f32::consts::PI / 4.,
-        Vec3::new(3., 3., 1.),
+        Vec3::new(30., 30., 1.),
         field_asset,
     );
-    let shield_node = spawn_empty_node(commands, position, rotation, scale, asset);
+    let shield_node = spawn_empty_node(commands, position, rotation, asset);
     commands
         .entity(shield_node)
         .insert(shield_stats)
@@ -58,20 +53,21 @@ pub fn spawn_shield_forcefield<'a>(
     asset: Handle<Image>,
 ) -> Entity {
     let forcefield_node = commands
-    .spawn()
-    .insert_bundle(SpriteBundle {
-        transform: Transform {
-            translation: position,
-            scale: scale,
-            rotation: Quat::from_rotation_z(rotation),
+        .spawn()
+        .insert_bundle(SpriteBundle {
+            transform: Transform {
+                translation: position,
+                scale: scale,
+                rotation: Quat::from_rotation_z(rotation),
+                ..default()
+            },
+            sprite: Sprite {
+                color: Color::rgba(0., 0., 1., 0.5),
+                ..default()
+            },
             ..default()
-        },
-        sprite: Sprite {
-            color: Color::rgba(0., 0., 1., 0.5),
-            ..default()
-        },
-        ..default()
-    }).id();
+        })
+        .id();
 
     commands
         .entity(forcefield_node)
@@ -83,14 +79,10 @@ pub fn spawn_laser_turret<'a>(
     commands: &'a mut Commands,
     position: Vec3,
     rotation: f32,
-    scale: Vec3,
     asset: Handle<Image>,
-    stats: Laser,
+    stats: Zapper,
 ) -> Entity {
-    let turret = spawn_empty_node(commands, position, rotation, scale, asset);
+    let turret = spawn_empty_node(commands, position, rotation, asset);
 
-    commands
-        .entity(turret)
-        .insert(stats)
-        .id()
+    commands.entity(turret).insert(stats).id()
 }

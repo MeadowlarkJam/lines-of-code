@@ -22,7 +22,9 @@ pub fn check_attachment(
                 .distance(attachable_transform.translation);
             // TODO: More exact collision detection
             if distance
-                < (player_transform.compute_transform().scale.x + attachable_transform.scale.x) / 2.
+                < ((player_transform.compute_transform().scale.x + attachable_transform.scale.x)
+                    / 2.)
+                    * 8.
             {
                 // We only check for attachments using the children, since we created a seperate child
                 // on top of the root in the beginning
@@ -30,22 +32,15 @@ pub fn check_attachment(
                 commands.entity(attachable_entity).insert(Player {});
                 commands.entity(attachable_entity).remove::<Object>();
 
-                attachable_transform.scale = Vec3::new(
-                    attachable_transform.scale.x / root_transform.scale.x,
-                    attachable_transform.scale.y / root_transform.scale.y,
+                // The new translations are offsets from the parent
+                attachable_transform.translation = Vec3::new(
+                    (attachable_transform.translation.x - root_transform.translation.x),
+                    (attachable_transform.translation.y - root_transform.translation.y),
                     0.,
                 );
 
-                // The new translations are offsets from the parent, scaled by the parent's scale
-                attachable_transform.translation = Vec3::new(
-                    (attachable_transform.translation.x - root_transform.translation.x)
-                        / root_transform.scale.x,
-                    (attachable_transform.translation.y - root_transform.translation.y)
-                        / root_transform.scale.y,
-                    999.,
-                );
-
                 root_stats.size += 1;
+                root_stats.health += 10;
             }
         }
     }

@@ -56,8 +56,9 @@ pub struct ShieldForcefield {
 }
 
 #[derive(Component)]
-pub struct Laser {
+pub struct Zapper {
     pub damage: i32,
     pub fire_rate: f32,
     pub cooldown_timer: f32,
+    pub range: f32,
 }
