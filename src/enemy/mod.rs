@@ -1,5 +1,6 @@
 mod components;
 mod plugin;
+mod spawners;
 mod systems;
 
 pub use self::{

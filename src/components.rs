@@ -49,3 +49,20 @@ pub struct Zapper {
 
 #[derive(Component)]
 pub struct ZapEffect;
+
+#[derive(Component)]
+pub struct Bullet {
+    pub damage: i32,
+    pub enemy: bool,
+}
+
+#[derive(Component)]
+pub struct Cannon {
+    pub damage: i32,
+    pub fire_rate: f32,
+    pub cooldown_timer: f32,
+    pub range: f32,
+}
+
+#[derive(Component)]
+pub struct Projectile {}

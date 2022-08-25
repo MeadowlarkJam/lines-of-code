@@ -1,16 +1,6 @@
 # TODOs
-- [ ] Some score based on the "size" of the clump
-- [ ] Satisfying af movement
-    - [ ] Cursor-based movement?
-    - [ ] Inertia based movement, based on the "weight" of the clump?
-- [ ] Clumps that have negative effects. WeirdConstructor had the idea of only being allowed to pick up a certain color
-- [ ] Assets for the objects to collect
-- [ ] Assets for the player
-- [ ] Assets for the background
-- [ ] Assets for the UI
-- [ ] Start menu
-- [ ] Music
-- [ ] SFX
+- Forcefield cooldown
+
 
 # Bevy GitHub CI Template
 
