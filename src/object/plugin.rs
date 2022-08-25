@@ -1,6 +1,9 @@
 use super::systems::{move_objects_system, spawn_start_objects_system};
-use crate::{player::PlayerSystem, schedule::GameState};
-use bevy::{prelude::*, time::FixedTimestep};
+use crate::{
+    components::Object, despawn_recursive::despawn_entities_recursive_system, player::PlayerSystem,
+    schedule::GameState,
+};
+use bevy::prelude::*;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, SystemLabel)]
 pub struct ObjectSystem;
@@ -18,8 +21,12 @@ impl Plugin for ObjectPlugin {
             SystemSet::on_update(GameState::InGame)
                 .label(ObjectSystem)
                 .before(PlayerSystem)
-                .with_run_criteria(FixedTimestep::step(1.0 / 60.0))
                 .with_system(move_objects_system),
+        )
+        .add_system_set(
+            SystemSet::on_enter(GameState::MainMenu)
+                .label(ObjectSystem)
+                .with_system(despawn_entities_recursive_system::<Object>),
         );
     }
 }

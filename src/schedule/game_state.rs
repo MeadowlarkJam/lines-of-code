@@ -4,4 +4,5 @@ pub enum GameState {
     SplashScreen,
     MainMenu,
     InGame,
+    Paused,
 }
