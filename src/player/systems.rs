@@ -4,6 +4,7 @@ use crate::{
     consts::{ASSET_SPRITES_PLAYER, PLAYER_SPEED},
     enemy::{Enemy, EnemyRoot},
     events::Hit,
+    starfield::{CustomMaterial, Starfield},
 };
 use bevy::prelude::*;
 
@@ -52,6 +53,8 @@ pub fn spawn_player_system(mut commands: Commands, asset_server: Res<AssetServer
 pub fn move_player_system(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<&mut Transform, With<PlayerRoot>>,
+    mut starfield: Query<&mut Starfield>,
+    mut materials: ResMut<Assets<CustomMaterial>>,
 ) {
     // The player's movement directions
     let mut movement_x = 0.;
@@ -76,6 +79,13 @@ pub fn move_player_system(
     // Move the player and clamp it to the screen
     player_transform.translation.x = player_transform.translation.x + movement_x * PLAYER_SPEED;
     player_transform.translation.y = player_transform.translation.y + movement_y * PLAYER_SPEED;
+    let sf = starfield.single();
+    if let Some(custom_material) = materials.get_mut(&sf.handle) {
+        custom_material.pos = Vec2::new(
+            player_transform.translation.x,
+            player_transform.translation.y,
+        );
+    }
 }
 
 pub fn shoot_player_zapper_system(
