@@ -20,3 +20,5 @@ pub const ASSET_FONTS_DEFAULT: &str = "fonts/FiraMono-Medium.ttf";
 pub const ASSET_SPRITES_ZAPPER: &str = "sprites/zapper.png";
 pub const ASSET_SPRITES_DEBRIS: &str = "sprites/debris.png";
 pub const ASSET_SPRITES_PLAYER: &str = "sprites/player.png";
+pub const ASSET_SPRITES_SHIELD: &str = "sprites/shield.png";
+pub const ASSET_SPRITES_FORCEFIELD: &str = "sprites/forcefield.png";

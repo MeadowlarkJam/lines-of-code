@@ -26,6 +26,7 @@ pub fn spawn_shield_node<'a>(
     position: Vec3,
     rotation: f32,
     asset: Handle<Image>,
+    field_asset: Handle<Image>,
     shield_stats: Shield,
 ) -> Entity {
     // Spawn the forcefield and add it as a child to the shield
@@ -33,7 +34,8 @@ pub fn spawn_shield_node<'a>(
         commands,
         Vec3::new(0., 0., 0.),
         std::f32::consts::PI / 4.,
-        Vec3::new(30., 30., 1.),
+        Vec3::new(1.5, 1.5, 1.),
+        field_asset
     );
     let shield_node = spawn_empty_node(commands, position, rotation, asset);
     commands
@@ -48,6 +50,7 @@ pub fn spawn_shield_forcefield<'a>(
     position: Vec3,
     rotation: f32,
     scale: Vec3,
+    asset: Handle<Image>,
 ) -> Entity {
     let forcefield_node = commands
         .spawn()
@@ -58,10 +61,7 @@ pub fn spawn_shield_forcefield<'a>(
                 rotation: Quat::from_rotation_z(rotation),
                 ..default()
             },
-            sprite: Sprite {
-                color: Color::rgba(0., 0., 1., 0.5),
-                ..default()
-            },
+            texture:asset,
             ..default()
         })
         .id();

@@ -1,6 +1,6 @@
-use crate::{despawn_recursive::despawn_entities_recursive_system, schedule::GameState};
+use crate::{despawn_recursive::despawn_entities_recursive_system, schedule::GameState, player::PlayerSystem};
 
-use super::{systems::spawn_shieldy_enemy_system, EnemyRoot};
+use super::{systems::{spawn_shieldy_enemy_system, check_enemy_death_system}, EnemyRoot};
 use bevy::prelude::*;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, SystemLabel)]
@@ -19,6 +19,7 @@ impl Plugin for EnemyPlugin {
             SystemSet::on_enter(GameState::MainMenu)
                 .label(EnemySystem)
                 .with_system(despawn_entities_recursive_system::<EnemyRoot>),
-        );
+        )
+        .add_system(check_enemy_death_system.after(PlayerSystem));
     }
 }

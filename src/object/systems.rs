@@ -146,3 +146,11 @@ pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<Asse
         });
     }
 }
+
+pub fn velocity_dropoff_system(mut query: Query<&mut Velocity, With<Object>>) {
+    for mut velocity in query.iter_mut() {
+        velocity.x *= 0.99;
+        velocity.y *= 0.99;
+        velocity.rotation *= 0.99;
+    }
+}
