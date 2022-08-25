@@ -1,5 +1,5 @@
 use crate::{
-    consts::ASSET_FONTS_DEFAULT,
+    consts::{ASSET_FONTS_DEFAULT, COLOR_ACCENT},
     schedule::GameState,
     ui::components::{OnSplashScreen, SplashScreenTimer},
 };
@@ -12,8 +12,8 @@ pub fn spawn_splash_screen_system(mut commands: Commands, asset_server: Res<Asse
                 "Escape Pod",
                 TextStyle {
                     font: asset_server.get_handle(ASSET_FONTS_DEFAULT),
-                    font_size: 100.0,
-                    color: Color::WHITE,
+                    font_size: 140.0,
+                    color: COLOR_ACCENT,
                 },
             )
             .with_style(Style {
@@ -28,15 +28,24 @@ pub fn spawn_splash_screen_system(mut commands: Commands, asset_server: Res<Asse
         )
         .insert(OnSplashScreen);
 
-    commands.insert_resource(SplashScreenTimer(Timer::from_seconds(1.0, false)));
+    commands.insert_resource(SplashScreenTimer(Timer::from_seconds(3.0, false)));
 }
 
 pub fn update_splash_screen_system(
     mut game_state: ResMut<State<GameState>>,
     time: Res<Time>,
     mut timer: ResMut<SplashScreenTimer>,
+    mut query: Query<&mut Text, With<OnSplashScreen>>,
 ) {
     if timer.0.tick(time.delta()).finished() {
         game_state.set(GameState::MainMenu).unwrap();
+    }
+
+    let alpha = timer.0.elapsed().as_secs_f32() / timer.0.duration().as_secs_f32();
+
+    for mut text in &mut query {
+        for section in &mut text.sections {
+            section.style.color.set_a(alpha);
+        }
     }
 }
