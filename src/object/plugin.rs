@@ -1,4 +1,7 @@
-use super::systems::{move_objects_system, spawn_start_objects_system, velocity_dropoff_system};
+use super::systems::{
+    bullet_collision, move_objects_system, move_projectile, spawn_start_objects_system,
+    velocity_dropoff_system,
+};
 use crate::{
     components::Object, despawn_recursive::despawn_entities_recursive_system, player::PlayerSystem,
     schedule::GameState,
@@ -22,7 +25,9 @@ impl Plugin for ObjectPlugin {
                 .label(ObjectSystem)
                 .before(PlayerSystem)
                 .with_system(move_objects_system)
+                .with_system(move_projectile)
                 .with_system(velocity_dropoff_system)
+                .with_system(bullet_collision),
         )
         .add_system_set(
             SystemSet::on_enter(GameState::MainMenu)

@@ -35,7 +35,7 @@ pub fn spawn_shield_node<'a>(
         Vec3::new(0., 0., 0.),
         std::f32::consts::PI / 4.,
         Vec3::new(1.5, 1.5, 1.),
-        field_asset
+        field_asset,
     );
     let shield_node = spawn_empty_node(commands, position, rotation, asset);
     commands
@@ -61,7 +61,7 @@ pub fn spawn_shield_forcefield<'a>(
                 rotation: Quat::from_rotation_z(rotation),
                 ..default()
             },
-            texture:asset,
+            texture: asset,
             ..default()
         })
         .id();
@@ -72,12 +72,24 @@ pub fn spawn_shield_forcefield<'a>(
         .id()
 }
 
-pub fn spawn_laser_turret<'a>(
+pub fn spawn_zapper_node<'a>(
     commands: &'a mut Commands,
     position: Vec3,
     rotation: f32,
     asset: Handle<Image>,
     stats: Zapper,
+) -> Entity {
+    let turret = spawn_empty_node(commands, position, rotation, asset);
+
+    commands.entity(turret).insert(stats).id()
+}
+
+pub fn spawn_cannon_node(
+    commands: &mut Commands,
+    position: Vec3,
+    rotation: f32,
+    asset: Handle<Image>,
+    stats: Cannon,
 ) -> Entity {
     let turret = spawn_empty_node(commands, position, rotation, asset);
 

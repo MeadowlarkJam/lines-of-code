@@ -1,7 +1,8 @@
 use super::{
     systems::{
         check_attachment_system, check_hits_system, check_player_death_system, move_player_system,
-        remove_zap_effect_system, shoot_player_zapper_system, spawn_player_system,
+        player_bullet_collision, remove_zap_effect_system, shoot_player_cannon_system,
+        shoot_player_zapper_system, spawn_player_system,
     },
     PlayerRoot,
 };
@@ -37,6 +38,7 @@ impl Plugin for PlayerPlugin {
             SystemSet::on_update(GameState::InGame)
                 .label(PlayerSystem)
                 .with_system(shoot_player_zapper_system)
+                .with_system(shoot_player_cannon_system)
                 .with_system(check_hits_system.after(shoot_player_zapper_system))
                 .with_system(check_player_death_system.after(check_hits_system)),
         )
