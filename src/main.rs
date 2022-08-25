@@ -1,4 +1,7 @@
-use bevy::{diagnostic::EntityCountDiagnosticsPlugin, prelude::*, render::texture::ImageSettings};
+use bevy::{
+    diagnostic::EntityCountDiagnosticsPlugin, prelude::*, render::texture::ImageSettings,
+    sprite::Material2dPlugin,
+};
 use bevy_editor_pls::prelude::*;
 
 mod components;
@@ -8,6 +11,7 @@ mod events;
 mod nodes;
 use consts::COLOR_BACKGROUND_DARKEST;
 use events::*;
+use starfield::CustomMaterial;
 
 // Plugins
 mod asset;
@@ -16,18 +20,11 @@ mod enemy;
 mod object;
 mod player;
 mod schedule;
+mod starfield;
 mod ui;
 
 fn main() {
     App::new()
-        // ----- Game -----
-        .add_plugin(asset::AssetPlugin)
-        .add_plugin(camera::CameraPlugin)
-        .add_plugin(enemy::EnemyPlugin)
-        .add_plugin(object::ObjectPlugin)
-        .add_plugin(player::PlayerPlugin)
-        .add_plugin(schedule::SchedulePlugin)
-        .add_plugin(ui::UiPlugin)
         // ----- Bevy -----
         .add_event::<Hit>()
         .add_event::<SoundEvent>()
@@ -35,6 +32,16 @@ fn main() {
         .insert_resource(ClearColor(COLOR_BACKGROUND_DARKEST))
         .add_plugins(DefaultPlugins)
         .add_plugin(EntityCountDiagnosticsPlugin)
+        // ----- Game -----
+        .add_plugin(asset::AssetPlugin)
+        .add_plugin(Material2dPlugin::<CustomMaterial>::default())
+        .add_plugin(camera::CameraPlugin)
+        .add_plugin(enemy::EnemyPlugin)
+        .add_plugin(object::ObjectPlugin)
+        .add_plugin(player::PlayerPlugin)
+        .add_plugin(schedule::SchedulePlugin)
+        .add_plugin(ui::UiPlugin)
+        .add_plugin(starfield::StarfieldPlugin)
         // ----- Third party -----
         .add_plugin(EditorPlugin)
         // ----- Start -----
