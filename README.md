@@ -1,6 +1,8 @@
 # TODOs
 - Forcefield cooldown
-- Cannon turret asset
+- Player death
+- Zappy generation broken
+- Weapon stat overhaul
 
 
 # Bevy GitHub CI Template

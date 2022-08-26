@@ -66,3 +66,8 @@ pub struct Cannon {
 
 #[derive(Component)]
 pub struct Projectile {}
+
+pub struct WorldStats {
+    pub kills: i32,
+    pub enemies_alive: i32
+}

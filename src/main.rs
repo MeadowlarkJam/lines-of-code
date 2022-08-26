@@ -9,6 +9,7 @@ mod consts;
 mod despawn_recursive;
 mod events;
 mod nodes;
+use components::WorldStats;
 use consts::COLOR_BACKGROUND_DARKEST;
 use events::*;
 use starfield::CustomMaterial;
@@ -30,6 +31,10 @@ fn main() {
         .add_event::<SoundEvent>()
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(COLOR_BACKGROUND_DARKEST))
+        .insert_resource(WorldStats {
+            kills: 0,
+            enemies_alive: 0
+        })
         .add_plugins(DefaultPlugins)
         .add_plugin(EntityCountDiagnosticsPlugin)
         // ----- Game -----

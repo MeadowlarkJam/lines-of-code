@@ -1,6 +1,6 @@
 use crate::{
     components::{Bullet, Cannon, Collider, Object, Projectile, Shield, Stats, Velocity, Zapper},
-    consts::{ASSET_SPRITES_DEBRIS, ASSET_SPRITES_SHIELD, ASSET_SPRITES_ZAPPER},
+    consts::{ASSET_SPRITES_DEBRIS, ASSET_SPRITES_SHIELD, ASSET_SPRITES_ZAPPER, ASSET_SPRITES_CANNON},
     enemy::Enemy,
     events::Hit,
     nodes::{spawn_cannon_node, spawn_empty_node, spawn_zapper_node},
@@ -132,7 +132,7 @@ pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<Asse
             0.,
         ),
         0.,
-        asset_server.get_handle(ASSET_SPRITES_SHIELD),
+        asset_server.get_handle(ASSET_SPRITES_CANNON),
         Cannon {
             damage: 10,
             fire_rate: 1.,

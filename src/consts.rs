@@ -1,7 +1,7 @@
 use bevy::prelude::Color;
 
 // Player
-pub const PLAYER_SPEED: f32 = 2.;
+pub const PLAYER_SPEED: f32 = 1.;
 
 // UI
 pub const COLOR_BACKGROUND_DARKEST: Color = Color::rgb(20.0 / 255.0, 17.0 / 255.0, 18.0 / 255.0);
@@ -22,3 +22,4 @@ pub const ASSET_SPRITES_DEBRIS: &str = "sprites/debris.png";
 pub const ASSET_SPRITES_PLAYER: &str = "sprites/player.png";
 pub const ASSET_SPRITES_SHIELD: &str = "sprites/shield.png";
 pub const ASSET_SPRITES_FORCEFIELD: &str = "sprites/forcefield.png";
+pub const ASSET_SPRITES_CANNON: &str = "sprites/cannon.png";
