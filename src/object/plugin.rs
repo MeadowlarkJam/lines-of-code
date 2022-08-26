@@ -3,7 +3,7 @@ use super::systems::{
     velocity_dropoff_system,
 };
 use crate::{
-    components::Object, despawn_recursive::despawn_entities_recursive_system, player::PlayerSystem,
+    components::{Object, ZapEffect, Projectile}, despawn_recursive::despawn_entities_recursive_system, player::PlayerSystem,
     schedule::GameState,
 };
 use bevy::prelude::*;
@@ -32,7 +32,9 @@ impl Plugin for ObjectPlugin {
         .add_system_set(
             SystemSet::on_enter(GameState::MainMenu)
                 .label(ObjectSystem)
-                .with_system(despawn_entities_recursive_system::<Object>),
+                .with_system(despawn_entities_recursive_system::<Object>)
+                .with_system(despawn_entities_recursive_system::<ZapEffect>)
+                .with_system(despawn_entities_recursive_system::<Projectile>),
         );
     }
 }

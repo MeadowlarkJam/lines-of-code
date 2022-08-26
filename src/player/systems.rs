@@ -7,7 +7,7 @@ use crate::{
     enemy::{Enemy, EnemyRoot},
     events::Hit,
     nodes::spawn_empty_node,
-    starfield::{CustomMaterial, Starfield},
+    starfield::{CustomMaterial, Starfield}, schedule::GameState,
 };
 use bevy::prelude::*;
 
@@ -304,11 +304,13 @@ pub fn remove_zap_effect_system(mut commands: Commands, query: Query<Entity, Wit
 pub fn check_player_death_system(
     mut commands: Commands,
     mut query: Query<(&Stats, Entity), With<PlayerRoot>>,
+    mut game_state: ResMut<State<GameState>>
 ) {
     for (stats, entity) in query.iter_mut() {
         if stats.health <= 0 {
             // TODO: Change visibility instead of despawning, which breaks the game
-            commands.entity(entity).despawn_recursive();
+            // For now just quit to the MainMenu
+            game_state.set(GameState::MainMenu).unwrap();
         }
     }
 }

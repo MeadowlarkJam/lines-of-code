@@ -1,8 +1,8 @@
 # TODOs
 - Forcefield cooldown
-- Player death
 - Zappy generation broken
 - Weapon stat overhaul
+- Sound
 
 
 # Bevy GitHub CI Template
