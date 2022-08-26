@@ -8,3 +8,7 @@ license = "MIT OR Apache-2.0"
 bevy = "0.8"
 rand = "0.8.5"
 bevy_editor_pls = "0.1.0"
+
+# Flickering fix
+[patch.crates-io]
+wgpu = { git = "https://github.com/mockersf/wgpu/", branch = "unconditional-clear-workaround" }
