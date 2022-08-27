@@ -16,9 +16,7 @@ pub fn spawn_empty_node<'a>(
                 ..default()
             },
             texture: asset,
-            visibility: Visibility {
-                is_visible: true
-            },
+            visibility: Visibility { is_visible: true },
             ..default()
         })
         .id()

@@ -2,7 +2,7 @@ use super::spawners::{spawn_boomy, spawn_shieldy, spawn_zappy};
 use super::{Enemy, EnemyDied, EnemyRoot, EnemyType};
 use crate::components::{Bullet, Cannon, Projectile};
 use crate::consts::ASSET_SPRITES_CANNON;
-use crate::events::{SoundEvent, Sound};
+use crate::events::{Sound, SoundEvent};
 use crate::nodes::{spawn_cannon_node, spawn_zapper_node};
 use crate::player::PlayerRoot;
 use crate::stats::Stats;
@@ -188,8 +188,8 @@ pub fn shoot_zappy_enemy_system(
                         target: shootable_parent.get(),
                         damage: zapper_stats.damage,
                     });
-                    event_sound.send(SoundEvent (Sound::Zap));
-                    event_sound.send(SoundEvent (Sound::Hit));
+                    event_sound.send(SoundEvent(Sound::Zap));
+                    event_sound.send(SoundEvent(Sound::Hit));
                     // Draw a yellow rectangle between the target and the zapper
                     let zapper_computed_transform = zapper_transform.compute_transform();
 
@@ -255,7 +255,7 @@ pub fn shoot_enemy_cannon_system(
                         target: shootable_parent.get(),
                         damage: cannon_stats.damage,
                     });
-                    event_sound.send(SoundEvent (Sound::CannonShot));
+                    event_sound.send(SoundEvent(Sound::CannonShot));
 
                     let velocity_x: f32 = (shootable_transform.compute_transform().translation.x
                         - cannon_transform.compute_transform().translation.x)
@@ -371,7 +371,6 @@ pub fn spawn_random_enemies_system(
                 _ => spawn_zappy(commands, asset_server, position),
             }
         }
-        
 
         stats.enemies_alive += 1;
     }

@@ -6,7 +6,6 @@ pub struct Hit {
 }
 
 pub enum Sound {
-    Connect,
     Hit,
     Zap,
     Death,

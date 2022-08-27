@@ -4,7 +4,7 @@ use crate::{
     },
     consts::{ASSET_SPRITES_CANNON, ASSET_SPRITES_DEBRIS, ASSET_SPRITES_ZAPPER},
     enemy::Enemy,
-    events::{Hit, SoundEvent, Sound},
+    events::{Hit, Sound, SoundEvent},
     nodes::{spawn_cannon_node, spawn_empty_node, spawn_zapper_node},
     player::{Player, PlayerRoot},
 };
