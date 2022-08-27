@@ -21,6 +21,10 @@ pub fn camera_follow_system(
     let player_transform = player_query.single();
     let mut camera_transform = camera_query.single_mut();
 
-    camera_transform.translation.x = player_transform.translation.x;
-    camera_transform.translation.y = player_transform.translation.y;
+    let lerped = camera_transform
+        .translation
+        .lerp(player_transform.translation, 0.1);
+
+    camera_transform.translation.x = lerped.x;
+    camera_transform.translation.y = lerped.y;
 }

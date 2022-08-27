@@ -36,8 +36,13 @@ pub fn update_splash_screen_system(
     time: Res<Time>,
     mut timer: ResMut<SplashScreenTimer>,
     mut query: Query<&mut Text, With<OnSplashScreen>>,
+    keyboard: Res<Input<KeyCode>>,
+    mouse: Res<Input<MouseButton>>,
 ) {
-    if timer.0.tick(time.delta()).finished() {
+    if timer.0.tick(time.delta()).finished()
+        || keyboard.just_pressed(KeyCode::Escape)
+        || mouse.just_pressed(MouseButton::Left)
+    {
         game_state.set(GameState::MainMenu).unwrap();
     }
 

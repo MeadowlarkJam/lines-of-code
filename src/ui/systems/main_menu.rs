@@ -1,7 +1,7 @@
 use crate::{
     consts::{
-        ASSET_FONTS_DEFAULT, COLOR_ACCENT, COLOR_BACKGROUND_DARKEST, COLOR_BUTTON_DEFAULT,
-        COLOR_FOREGROUND,
+        ASSET_FONTS_DEFAULT, COLOR_ACCENT, COLOR_BUTTON_DEFAULT, COLOR_FOREGROUND,
+        COLOR_TRANSPARENT,
     },
     schedule::GameState,
     ui::components::{MainMenuButtonAction, OnMainMenuScreen},
@@ -57,7 +57,7 @@ pub fn spawn_main_menu_ui_system(mut commands: Commands, asset_server: Res<Asset
                 size: Size::new(Val::Percent(100.0), Val::Percent(40.0)),
                 ..default()
             },
-            color: COLOR_BACKGROUND_DARKEST.into(),
+            color: COLOR_TRANSPARENT.into(),
             ..default()
         })
         .insert(OnMainMenuScreen)

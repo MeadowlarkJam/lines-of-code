@@ -1,10 +1,11 @@
 use super::{
-    components::{OnIngameScreen, OnMainMenuScreen, OnPausedScreen, OnSplashScreen},
+    components::{OnDeathScreen, OnIngameScreen, OnMainMenuScreen, OnPausedScreen, OnSplashScreen},
     systems::{
-        button_highlight_system, check_for_paused_system, check_for_unpaused_system,
+        button_highlight_system, end_screen_button_interaction_system,
         main_menu_button_interaction_system, paused_button_interaction_system,
-        spawn_ingame_ui_system, spawn_main_menu_ui_system, spawn_paused_ui_system,
-        spawn_splash_screen_system, update_splash_screen_system, update_ui_health_system,
+        spawn_end_screen_ui_system, spawn_ingame_ui_system, spawn_main_menu_ui_system,
+        spawn_paused_ui_system, spawn_splash_screen_system, update_splash_screen_system,
+        update_ui_enemies_alive_system, update_ui_kills_system, update_ui_player_stats_system,
         update_ui_score_system,
     },
 };
@@ -62,11 +63,12 @@ impl Plugin for UiPlugin {
                 SystemSet::on_update(GameState::InGame)
                     .label(UiSystem)
                     .with_system(update_ui_score_system)
-                    .with_system(update_ui_health_system)
-                    .with_system(check_for_paused_system),
+                    .with_system(update_ui_player_stats_system)
+                    .with_system(update_ui_kills_system)
+                    .with_system(update_ui_enemies_alive_system),
             )
             .add_system_set(
-                SystemSet::on_enter(GameState::MainMenu)
+                SystemSet::on_exit(GameState::InGame)
                     .label(UiSystem)
                     .with_system(despawn_entities_recursive_system::<OnIngameScreen>),
             )
@@ -79,13 +81,28 @@ impl Plugin for UiPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Paused)
                     .label(UiSystem)
-                    .with_system(check_for_unpaused_system)
                     .with_system(paused_button_interaction_system),
             )
             .add_system_set(
                 SystemSet::on_exit(GameState::Paused)
                     .label(UiSystem)
                     .with_system(despawn_entities_recursive_system::<OnPausedScreen>),
+            )
+            // End screen
+            .add_system_set(
+                SystemSet::on_enter(GameState::EndScreen)
+                    .label(UiSystem)
+                    .with_system(spawn_end_screen_ui_system),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameState::EndScreen)
+                    .label(UiSystem)
+                    .with_system(end_screen_button_interaction_system),
+            )
+            .add_system_set(
+                SystemSet::on_exit(GameState::EndScreen)
+                    .label(UiSystem)
+                    .with_system(despawn_entities_recursive_system::<OnDeathScreen>),
             );
     }
 }

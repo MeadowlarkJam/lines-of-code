@@ -1,4 +1,4 @@
-use crate::{player::PlayerSystem, schedule::GameState};
+use crate::schedule::GameState;
 use bevy::prelude::*;
 
 use super::systems::spawn_starfield_system;
