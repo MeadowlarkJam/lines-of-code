@@ -1,8 +1,8 @@
 use crate::{
     consts::{
         ASSET_AUDIO_DEATH, ASSET_AUDIO_EXPLOSION, ASSET_AUDIO_HIT, ASSET_AUDIO_LASER,
-        ASSET_FONTS_DEFAULT, ASSET_SPRITES_CANNON, ASSET_SPRITES_DEBRIS, ASSET_SPRITES_FORCEFIELD,
-        ASSET_SPRITES_PLAYER, ASSET_SPRITES_SHIELD, ASSET_SPRITES_ZAPPER,
+        ASSET_AUDIO_LOAD, ASSET_FONTS_DEFAULT, ASSET_SPRITES_CANNON, ASSET_SPRITES_DEBRIS,
+        ASSET_SPRITES_FORCEFIELD, ASSET_SPRITES_PLAYER, ASSET_SPRITES_SHIELD, ASSET_SPRITES_ZAPPER,
     },
     events::{Sound, SoundEvent},
 };
@@ -12,6 +12,7 @@ use super::resources::SoundHandles;
 
 pub fn load_ingame_assets_system(
     asset_server: Res<AssetServer>,
+    audio: Res<Audio>,
     mut sound_handles: ResMut<SoundHandles>,
 ) {
     let _ = asset_server.load::<Image, &str>(ASSET_SPRITES_DEBRIS);
@@ -25,6 +26,12 @@ pub fn load_ingame_assets_system(
     sound_handles.laser = asset_server.load::<AudioSource, &str>(ASSET_AUDIO_LASER);
     sound_handles.explosion = asset_server.load::<AudioSource, &str>(ASSET_AUDIO_EXPLOSION);
     sound_handles.hit = asset_server.load::<AudioSource, &str>(ASSET_AUDIO_HIT);
+    sound_handles.loadup = asset_server.load::<AudioSource, &str>(ASSET_AUDIO_LOAD);
+
+    audio.play_with_settings(
+        sound_handles.loadup.clone(),
+        PlaybackSettings::ONCE.with_volume(0.1),
+    );
 }
 
 pub fn load_ui_assets_system(asset_server: Res<AssetServer>) {

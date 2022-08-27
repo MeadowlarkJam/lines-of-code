@@ -8,4 +8,5 @@ pub struct SoundHandles {
     pub laser: Handle<AudioSource>,
     pub explosion: Handle<AudioSource>,
     pub cannon: Handle<AudioSource>,
+    pub loadup: Handle<AudioSource>,
 }

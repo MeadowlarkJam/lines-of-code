@@ -2,8 +2,7 @@ use super::{Player, PlayerRoot, PlayerSizeIncreased};
 use crate::{
     camera::MainCamera,
     components::{
-        Bullet, Cannon, Collider, Object, Projectile, Properties, Velocity, ZapEffect,
-        Zapper,
+        Bullet, Cannon, Collider, Object, Projectile, Properties, Velocity, ZapEffect, Zapper,
     },
     consts::{ASSET_SPRITES_PLAYER, PLAYER_SPEED},
     enemy::{Enemy, EnemyRoot},

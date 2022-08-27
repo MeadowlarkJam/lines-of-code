@@ -12,13 +12,10 @@ impl Plugin for AssetPlugin {
         app.add_system_set(
             SystemSet::on_enter(GameState::SplashScreen)
                 .label(AssetSystem)
-                .with_system(load_ui_assets_system),
-        )
-        .add_system_set(
-            SystemSet::on_enter(GameState::InGame)
-                .label(AssetSystem)
+                .with_system(load_ui_assets_system)
                 .with_system(load_ingame_assets_system),
         )
+        .add_system_set(SystemSet::on_enter(GameState::InGame).label(AssetSystem))
         .add_system_set(SystemSet::on_update(GameState::InGame).with_system(play_sounds));
     }
 }
