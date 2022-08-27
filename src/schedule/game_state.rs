@@ -5,4 +5,5 @@ pub enum GameState {
     MainMenu,
     InGame,
     Paused,
+    EndScreen,
 }

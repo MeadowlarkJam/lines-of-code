@@ -1,14 +1,13 @@
-use bevy::prelude::*;
-
+use super::{Enemy, EnemyRoot, EnemyType};
 use crate::{
     components::*,
     consts::{
-        ASSET_SPRITES_DEBRIS, ASSET_SPRITES_FORCEFIELD, ASSET_SPRITES_SHIELD, ASSET_SPRITES_ZAPPER, ASSET_SPRITES_CANNON,
+        ASSET_SPRITES_CANNON, ASSET_SPRITES_DEBRIS, ASSET_SPRITES_FORCEFIELD, ASSET_SPRITES_SHIELD,
+        ASSET_SPRITES_ZAPPER,
     },
-    nodes::{spawn_empty_node, spawn_shield_node, spawn_zapper_node, spawn_cannon_node},
+    nodes::{spawn_cannon_node, spawn_empty_node, spawn_shield_node, spawn_zapper_node},
 };
-
-use super::{Enemy, EnemyRoot, EnemyType};
+use bevy::prelude::*;
 
 pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, position: Vec3) {
     let debris_handle = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
@@ -23,7 +22,7 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, pos
         .insert(EnemyRoot {
             enemy_type: EnemyType::Shieldy,
         })
-        .insert(Stats {
+        .insert(Properties {
             size: 7,
             health: 70,
         });
@@ -98,7 +97,7 @@ pub fn spawn_zappy(mut commands: Commands, asset_server: Res<AssetServer>, posit
         .insert(EnemyRoot {
             enemy_type: EnemyType::Zappy,
         })
-        .insert(Stats {
+        .insert(Properties {
             size: 9,
             health: 90,
         });
@@ -149,7 +148,7 @@ pub fn spawn_boomy(mut commands: Commands, asset_server: Res<AssetServer>, posit
         .insert(EnemyRoot {
             enemy_type: EnemyType::Boomy,
         })
-        .insert(Stats {
+        .insert(Properties {
             size: 9,
             health: 90,
         });
@@ -168,7 +167,6 @@ pub fn spawn_boomy(mut commands: Commands, asset_server: Res<AssetServer>, posit
                         cooldown_timer: 0.,
                         range: 100.,
                     },
-                    
                 );
 
                 commands.entity(element).insert(Collider).insert(Enemy);

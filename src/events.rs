@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 pub struct Hit {
-    pub damage: i32,
+    pub damage: u32,
     pub target: Entity,
 }
 

@@ -19,16 +19,16 @@ pub struct Velocity {
 // Components can hold data too, though
 // size: Amount of connected blocks
 #[derive(Component)]
-pub struct Stats {
-    pub size: i32,
-    pub health: i32,
+pub struct Properties {
+    pub size: u32,
+    pub health: u32,
 }
 
 // Powerup nodes
 #[derive(Component)]
 pub struct Shield {
     // Health of the shield until the cooldown starts
-    pub health: i32,
+    pub health: u32,
     // Cooldown in seconds
     pub cooldown: f32,
     pub cooldown_timer: f32,
@@ -41,7 +41,7 @@ pub struct ShieldForcefield {
 
 #[derive(Component)]
 pub struct Zapper {
-    pub damage: i32,
+    pub damage: u32,
     pub fire_rate: f32,
     pub cooldown_timer: f32,
     pub range: f32,
@@ -52,13 +52,13 @@ pub struct ZapEffect;
 
 #[derive(Component)]
 pub struct Bullet {
-    pub damage: i32,
+    pub damage: u32,
     pub enemy: bool,
 }
 
 #[derive(Component)]
 pub struct Cannon {
-    pub damage: i32,
+    pub damage: u32,
     pub fire_rate: f32,
     pub cooldown_timer: f32,
     pub range: f32,
@@ -66,8 +66,3 @@ pub struct Cannon {
 
 #[derive(Component)]
 pub struct Projectile {}
-
-pub struct WorldStats {
-    pub kills: i32,
-    pub enemies_alive: i32
-}

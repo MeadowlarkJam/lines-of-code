@@ -1,13 +1,12 @@
-use std::f32::consts::TAU;
-
-use super::spawners::{spawn_shieldy, spawn_zappy, spawn_boomy};
-use super::{Enemy, EnemyRoot, EnemyType};
-use crate::components::{Bullet, Cannon, Projectile, WorldStats};
+use super::spawners::{spawn_boomy, spawn_shieldy, spawn_zappy};
+use super::{Enemy, EnemyDied, EnemyRoot, EnemyType};
+use crate::components::{Bullet, Cannon, Projectile};
 use crate::consts::ASSET_SPRITES_CANNON;
-use crate::nodes::{spawn_zapper_node, spawn_cannon_node};
+use crate::nodes::{spawn_cannon_node, spawn_zapper_node};
 use crate::player::PlayerRoot;
+use crate::stats::Stats;
 use crate::{
-    components::{Collider, Object, Shield, Stats, Velocity, ZapEffect, Zapper},
+    components::{Object, Properties, Shield, Velocity, ZapEffect, Zapper},
     consts::{
         ASSET_SPRITES_DEBRIS, ASSET_SPRITES_FORCEFIELD, ASSET_SPRITES_SHIELD, ASSET_SPRITES_ZAPPER,
     },
@@ -17,17 +16,18 @@ use crate::{
 };
 use bevy::prelude::*;
 use rand::Rng;
+use std::f32::consts::TAU;
 
 pub fn check_enemy_death_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    mut world_stats: ResMut<WorldStats>,
-    mut query: Query<(&Stats, Entity, &EnemyRoot, &Transform), With<EnemyRoot>>,
+    mut query: Query<(&Properties, Entity, &EnemyRoot, &Transform), With<EnemyRoot>>,
+    mut event_writer: EventWriter<EnemyDied>,
 ) {
-    for (stats, entity, root, transform) in query.iter_mut() {
-        if stats.health <= 0 {
-            world_stats.enemies_alive -= 1;
-            world_stats.kills += 1;
+    for (properties, entity, root, transform) in query.iter_mut() {
+        if properties.health <= 0 {
+            event_writer.send(EnemyDied);
+
             let debris_handle = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
             let shield_handle: Handle<Image> = asset_server.get_handle(ASSET_SPRITES_SHIELD);
             let zapper_handle: Handle<Image> = asset_server.get_handle(ASSET_SPRITES_ZAPPER);
@@ -154,7 +154,7 @@ pub fn check_enemy_death_system(
                             rotation: rand::random::<f32>() * 0.2,
                         });
                     }
-                },
+                }
             }
             commands.entity(entity).despawn_recursive();
         }
@@ -228,6 +228,7 @@ pub fn shoot_zappy_enemy_system(
 pub fn shoot_enemy_cannon_system(
     mut commands: Commands,
     time: Res<Time>,
+    mut event_hit: EventWriter<Hit>,
     mut cannon_query: Query<(&GlobalTransform, &mut Cannon), With<Enemy>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Player>>,
 ) {
@@ -245,6 +246,10 @@ pub fn shoot_enemy_cannon_system(
                 // If there is a hit
                 if distance < cannon_stats.range {
                     cannon_stats.cooldown_timer = cannon_stats.fire_rate;
+                    event_hit.send(Hit {
+                        target: shootable_parent.get(),
+                        damage: cannon_stats.damage,
+                    });
 
                     let velocity_x: f32 = (shootable_transform.compute_transform().translation.x
                         - cannon_transform.compute_transform().translation.x)
@@ -297,22 +302,23 @@ pub fn follow_player_in_range_system(
                 .translation
                 .distance(enemy_transform.translation);
             if distance < 200. && distance > 8. {
-                let direction = (player_transform.translation - enemy_transform.translation).normalize();
+                let direction =
+                    (player_transform.translation - enemy_transform.translation).normalize();
                 enemy_transform.translation = enemy_transform.translation + direction * 0.6;
-            } 
+            }
         }
     }
 }
 
 pub fn spawn_random_enemies_system(
-    mut commands: Commands,
-    mut world_stats: ResMut<WorldStats>,
+    commands: Commands,
+    mut stats: ResMut<Stats>,
     windows: Res<Windows>,
     asset_server: Res<AssetServer>,
     player_query: Query<&Transform, With<PlayerRoot>>,
 ) {
     // 5 enemies at max
-    if world_stats.enemies_alive < world_stats.kills + 1 {
+    if stats.enemies_alive < stats.kills + 1 {
         let player_transform = player_query.single().translation;
         // Spawn a random enemy just outside of the screen
         // Due to the camera zoom, the side of the screen is actually not the side of the viewport
@@ -320,17 +326,33 @@ pub fn spawn_random_enemies_system(
         let half_height = windows.get_primary().unwrap().height() as f32 / 7.;
         let screen_side = rand::thread_rng().gen_range(0..4);
         let offset = 0.;
-        let position = player_transform + match screen_side {
-            // Left
-            0 => Vec3::new(-half_width - offset, rand::thread_rng().gen_range(-half_height..half_height), 0.),
-            // Right
-            1 => Vec3::new(half_width + offset, rand::thread_rng().gen_range(-half_height..half_height), 0.),
-            // Up
-            2 => Vec3::new(rand::thread_rng().gen_range(-half_width..half_width), half_height + offset, 0.),
-            // Down
-            _ => Vec3::new(rand::thread_rng().gen_range(-half_width..half_width), -half_height - offset, 0.),
-        };
-        println!("Spawning enemy at {:?}", position);
+        let position = player_transform
+            + match screen_side {
+                // Left
+                0 => Vec3::new(
+                    -half_width - offset,
+                    rand::thread_rng().gen_range(-half_height..half_height),
+                    0.,
+                ),
+                // Right
+                1 => Vec3::new(
+                    half_width + offset,
+                    rand::thread_rng().gen_range(-half_height..half_height),
+                    0.,
+                ),
+                // Up
+                2 => Vec3::new(
+                    rand::thread_rng().gen_range(-half_width..half_width),
+                    half_height + offset,
+                    0.,
+                ),
+                // Down
+                _ => Vec3::new(
+                    rand::thread_rng().gen_range(-half_width..half_width),
+                    -half_height - offset,
+                    0.,
+                ),
+            };
 
         // Spawn a random enemy
         let enemy_type = rand::thread_rng().gen_range(0..3);
@@ -340,16 +362,16 @@ pub fn spawn_random_enemies_system(
             _ => spawn_zappy(commands, asset_server, position),
         }
 
-        world_stats.enemies_alive += 1;
+        stats.enemies_alive += 1;
     }
 }
 
 // Clean enemies if the distance is too high
 pub fn clean_enemies_system(
     mut commands: Commands,
-    mut world_stats: ResMut<WorldStats>,
+    mut stats: ResMut<Stats>,
     player_query: Query<&Transform, With<PlayerRoot>>,
-    enemy_query: Query<(&Transform, Entity), With<EnemyRoot>>
+    enemy_query: Query<(&Transform, Entity), With<EnemyRoot>>,
 ) {
     for player_transform in player_query.iter() {
         for (enemy_transform, enemy_entity) in enemy_query.iter() {
@@ -358,7 +380,7 @@ pub fn clean_enemies_system(
                 .distance(enemy_transform.translation);
             if distance > 5000. {
                 commands.entity(enemy_entity).despawn();
-                world_stats.enemies_alive -= 1;
+                stats.enemies_alive -= 1;
             }
         }
     }
