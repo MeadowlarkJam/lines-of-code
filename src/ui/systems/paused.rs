@@ -1,6 +1,6 @@
 use crate::{
-    consts::{ASSET_FONTS_DEFAULT, COLOR_BACKGROUND_DARK, COLOR_BUTTON_DEFAULT, COLOR_FOREGROUND},
-    schedule::GameState,
+    consts::{ASSET_FONTS_DEFAULT, COLOR_BUTTON_DEFAULT, COLOR_FOREGROUND, COLOR_TRANSPARENT},
+    schedule::{GameState, GotoMainMenu},
     ui::components::{OnPausedScreen, PausedScreenButtonAction},
 };
 use bevy::{app::AppExit, prelude::*};
@@ -32,7 +32,7 @@ pub fn spawn_paused_ui_system(mut commands: Commands, asset_server: Res<AssetSer
                 align_self: AlignSelf::Center,
                 ..default()
             },
-            color: COLOR_BACKGROUND_DARK.into(),
+            color: COLOR_TRANSPARENT.into(),
             ..default()
         })
         .insert(OnPausedScreen)
@@ -82,26 +82,20 @@ pub fn spawn_paused_ui_system(mut commands: Commands, asset_server: Res<AssetSer
         });
 }
 
-pub fn check_for_unpaused_system(
-    mut input: ResMut<Input<KeyCode>>,
-    mut game_state: ResMut<State<GameState>>,
-) {
-    if input.just_pressed(KeyCode::Escape) {
-        input.clear_just_pressed(KeyCode::Escape);
-        game_state.pop().unwrap();
-    }
-}
-
 pub fn paused_button_interaction_system(
     query: Query<(&Interaction, &PausedScreenButtonAction), (Changed<Interaction>, With<Button>)>,
     mut app_exit_events: EventWriter<AppExit>,
     mut game_state: ResMut<State<GameState>>,
+    mut event_writer: EventWriter<GotoMainMenu>,
 ) {
     for (interaction, action) in query.iter() {
         if *interaction == Interaction::Clicked {
             match action {
                 PausedScreenButtonAction::Continue => game_state.pop().unwrap(),
-                PausedScreenButtonAction::MainMenu => game_state.set(GameState::MainMenu).unwrap(),
+                PausedScreenButtonAction::MainMenu => {
+                    event_writer.send(GotoMainMenu);
+                    game_state.pop().unwrap();
+                }
                 PausedScreenButtonAction::Quit => app_exit_events.send(AppExit),
             }
         }

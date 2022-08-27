@@ -1,6 +1,8 @@
 use crate::{
-    components::{Bullet, Cannon, Collider, Object, Projectile, Shield, Stats, Velocity, Zapper},
-    consts::{ASSET_SPRITES_DEBRIS, ASSET_SPRITES_SHIELD, ASSET_SPRITES_ZAPPER, ASSET_SPRITES_CANNON},
+    components::{
+        Bullet, Cannon, Collider, Object, Projectile, Properties, Shield, Velocity, Zapper,
+    },
+    consts::{ASSET_SPRITES_CANNON, ASSET_SPRITES_DEBRIS, ASSET_SPRITES_ZAPPER},
     enemy::Enemy,
     events::Hit,
     nodes::{spawn_cannon_node, spawn_empty_node, spawn_zapper_node},
@@ -59,7 +61,7 @@ pub fn _spawn_object_system(
             y: rand::random::<f32>() * 2. - 1.,
             rotation: rand::random::<f32>() * 0.2 - 0.1,
         })
-        .insert(Stats { size: 1, health: 1 });
+        .insert(Properties { size: 1, health: 1 });
 }
 
 // Clean all the objects that are the length of the diagonal of the screen away from the player
@@ -184,7 +186,10 @@ pub fn move_projectile(mut query: Query<(&mut Transform, &Velocity), With<Projec
 pub fn bullet_collision(
     mut commands: Commands,
     mut event_hit: EventWriter<Hit>,
-    hittable_query: Query<(Entity, &GlobalTransform, Option<&Enemy>), (Or<(With<Enemy>, With<Player>)>)>,
+    hittable_query: Query<
+        (Entity, &GlobalTransform, Option<&Enemy>),
+        Or<(With<Enemy>, With<Player>)>,
+    >,
     bullet_query: Query<(Entity, &Transform, &Bullet)>,
     mut forcefield_query: Query<
         (

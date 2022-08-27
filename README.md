@@ -4,7 +4,6 @@
 - Weapon stat overhaul
 - Sound
 
-
 # Bevy GitHub CI Template
 
 This repo show how to setup CI on a github project for Bevy.
