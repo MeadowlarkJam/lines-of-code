@@ -360,20 +360,25 @@ pub fn spawn_random_enemies_system(
                 ),
             };
 
-        // Spawn a random enemy
-        let enemy_type = rand::thread_rng().gen_range(0..3);
-        match enemy_type {
-            0 => spawn_shieldy(commands, asset_server, position),
-            1 => spawn_boomy(commands, asset_server, position),
-            _ => spawn_zappy(commands, asset_server, position),
+        if stats.kills == 0 {
+            spawn_shieldy(commands, asset_server, position);
+        } else {
+            // Spawn a random enemy
+            let enemy_type = rand::thread_rng().gen_range(0..3);
+            match enemy_type {
+                0 => spawn_shieldy(commands, asset_server, position),
+                1 => spawn_boomy(commands, asset_server, position),
+                _ => spawn_zappy(commands, asset_server, position),
+            }
         }
+        
 
         stats.enemies_alive += 1;
     }
 }
 
 // Clean enemies if the distance is too high
-pub fn clean_enemies_system(
+pub fn _clean_enemies_system(
     mut commands: Commands,
     mut stats: ResMut<Stats>,
     player_query: Query<&Transform, With<PlayerRoot>>,

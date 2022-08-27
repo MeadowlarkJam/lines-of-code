@@ -73,7 +73,7 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, pos
         shield_handle.clone(),
         forcefield_handle.clone(),
         Shield {
-            health: 100,
+            health: 10,
             cooldown: 3.,
             cooldown_timer: 0.,
         },
@@ -101,17 +101,17 @@ pub fn spawn_zappy(mut commands: Commands, asset_server: Res<AssetServer>, posit
             size: 9,
             health: 90,
         });
-    for i in -2..=2 {
+    for i in -1..=1 {
         for j in -1..=1 {
             let element;
             if (j == 1 || j == -1) && i == 0 {
                 element = spawn_zapper_node(
                     &mut commands,
-                    Vec3::new(0., 0., 0.),
+                    Vec3::new(0., j as f32 * 8., 0.),
                     0.,
                     zapper_handle.clone(),
                     Zapper {
-                        damage: 10,
+                        damage: 5,
                         fire_rate: 1.,
                         cooldown_timer: 0.,
                         range: 100.,
