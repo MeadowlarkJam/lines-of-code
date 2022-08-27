@@ -4,7 +4,7 @@ use crate::{
     },
     consts::{ASSET_SPRITES_CANNON, ASSET_SPRITES_DEBRIS, ASSET_SPRITES_ZAPPER},
     enemy::Enemy,
-    events::Hit,
+    events::{Hit, SoundEvent, Sound},
     nodes::{spawn_cannon_node, spawn_empty_node, spawn_zapper_node},
     player::{Player, PlayerRoot},
 };
@@ -186,6 +186,7 @@ pub fn move_projectile(mut query: Query<(&mut Transform, &Velocity), With<Projec
 pub fn bullet_collision(
     mut commands: Commands,
     mut event_hit: EventWriter<Hit>,
+    mut event_sound: EventWriter<SoundEvent>,
     hittable_query: Query<
         (Entity, &GlobalTransform, Option<&Enemy>),
         Or<(With<Enemy>, With<Player>)>,
@@ -220,6 +221,7 @@ pub fn bullet_collision(
                 forcefield_stats.health -= bullet_stats.damage;
                 if forcefield_stats.health <= 0 {
                     forcefield_visibility.is_visible = false;
+                    forcefield_stats.cooldown_timer = forcefield_stats.cooldown;
                 }
 
                 commands.entity(bullet_entity).despawn();
@@ -244,9 +246,24 @@ pub fn bullet_collision(
                     target: hittable_entity,
                     damage: bullet_stats.damage,
                 });
+                event_sound.send(SoundEvent(Sound::Hit));
                 commands.entity(bullet_entity).despawn();
                 return;
             }
+        }
+    }
+}
+
+pub fn forcefield_cooldown_system(
+    mut forcefield_query: Query<(&mut Shield, &mut Visibility), With<Parent>>,
+    time: Res<Time>,
+) {
+    for (mut forcefield_stats, mut forcefield_visibility) in forcefield_query.iter_mut() {
+        if forcefield_stats.cooldown_timer > 0. {
+            forcefield_stats.cooldown_timer -= time.delta_seconds();
+        }
+        if forcefield_stats.cooldown_timer <= 0. {
+            forcefield_visibility.is_visible = true;
         }
     }
 }

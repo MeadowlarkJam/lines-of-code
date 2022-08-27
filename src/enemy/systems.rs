@@ -2,6 +2,7 @@ use super::spawners::{spawn_boomy, spawn_shieldy, spawn_zappy};
 use super::{Enemy, EnemyDied, EnemyRoot, EnemyType};
 use crate::components::{Bullet, Cannon, Projectile};
 use crate::consts::ASSET_SPRITES_CANNON;
+use crate::events::{SoundEvent, Sound};
 use crate::nodes::{spawn_cannon_node, spawn_zapper_node};
 use crate::player::PlayerRoot;
 use crate::stats::Stats;
@@ -165,6 +166,8 @@ pub fn shoot_zappy_enemy_system(
     mut commands: Commands,
     time: Res<Time>,
     mut event_hit: EventWriter<Hit>,
+    mut event_sound: EventWriter<SoundEvent>,
+
     mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Enemy>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Player>>,
 ) {
@@ -185,7 +188,8 @@ pub fn shoot_zappy_enemy_system(
                         target: shootable_parent.get(),
                         damage: zapper_stats.damage,
                     });
-
+                    event_sound.send(SoundEvent (Sound::Zap));
+                    event_sound.send(SoundEvent (Sound::Hit));
                     // Draw a yellow rectangle between the target and the zapper
                     let zapper_computed_transform = zapper_transform.compute_transform();
 
@@ -229,6 +233,7 @@ pub fn shoot_enemy_cannon_system(
     mut commands: Commands,
     time: Res<Time>,
     mut event_hit: EventWriter<Hit>,
+    mut event_sound: EventWriter<SoundEvent>,
     mut cannon_query: Query<(&GlobalTransform, &mut Cannon), With<Enemy>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Player>>,
 ) {
@@ -250,6 +255,7 @@ pub fn shoot_enemy_cannon_system(
                         target: shootable_parent.get(),
                         damage: cannon_stats.damage,
                     });
+                    event_sound.send(SoundEvent (Sound::CannonShot));
 
                     let velocity_x: f32 = (shootable_transform.compute_transform().translation.x
                         - cannon_transform.compute_transform().translation.x)

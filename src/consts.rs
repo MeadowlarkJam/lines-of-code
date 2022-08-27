@@ -23,3 +23,8 @@ pub const ASSET_SPRITES_PLAYER: &str = "sprites/player.png";
 pub const ASSET_SPRITES_SHIELD: &str = "sprites/shield.png";
 pub const ASSET_SPRITES_FORCEFIELD: &str = "sprites/forcefield.png";
 pub const ASSET_SPRITES_CANNON: &str = "sprites/cannon.png";
+
+pub const ASSET_AUDIO_DEATH: &str = "sounds/deathsound.wav";
+pub const ASSET_AUDIO_LASER: &str = "sounds/lasershot1.wav";
+pub const ASSET_AUDIO_EXPLOSION: &str = "sounds/explosion.wav";
+pub const ASSET_AUDIO_HIT: &str = "sounds/modhit.wav";

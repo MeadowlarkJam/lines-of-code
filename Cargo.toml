@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-bevy = "0.8"
+bevy = {version="0.8", features=["wav"]}
 rand = "0.8.5"
 bevy_editor_pls = "0.1.0"
 

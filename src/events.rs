@@ -9,6 +9,8 @@ pub enum Sound {
     Connect,
     Hit,
     Zap,
+    Death,
+    CannonShot,
 }
 
-pub struct SoundEvent(Sound);
+pub struct SoundEvent(pub Sound);

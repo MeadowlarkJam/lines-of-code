@@ -7,7 +7,7 @@ use crate::{
     },
     consts::{ASSET_SPRITES_PLAYER, PLAYER_SPEED},
     enemy::{Enemy, EnemyRoot},
-    events::Hit,
+    events::{Hit, Sound, SoundEvent},
     schedule::GameState,
     starfield::{CustomMaterial, Starfield},
 };
@@ -131,6 +131,7 @@ pub fn shoot_player_zapper_system(
     mut commands: Commands,
     time: Res<Time>,
     mut event_hit: EventWriter<Hit>,
+    mut event_sound: EventWriter<SoundEvent>,
     mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Player>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Enemy>>,
 ) {
@@ -151,6 +152,8 @@ pub fn shoot_player_zapper_system(
                         target: shootable_parent.get(),
                         damage: zapper_stats.damage,
                     });
+                    event_sound.send(SoundEvent(Sound::Zap));
+                    event_sound.send(SoundEvent(Sound::Hit));
 
                     // Draw a yellow rectangle between the target and the zapper
                     let zapper_computed_transform = zapper_transform.compute_transform();
@@ -195,6 +198,7 @@ pub fn shoot_player_cannon_system(
     mut commands: Commands,
     time: Res<Time>,
     mut event_hit: EventWriter<Hit>,
+    mut event_sound: EventWriter<SoundEvent>,
     mut cannon_query: Query<(&GlobalTransform, &mut Cannon), With<Player>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Enemy>>,
 ) {
@@ -216,6 +220,8 @@ pub fn shoot_player_cannon_system(
                         target: shootable_parent.get(),
                         damage: cannon_stats.damage,
                     });
+
+                    event_sound.send(SoundEvent(Sound::CannonShot));
 
                     let velocity_x: f32 = (shootable_transform.compute_transform().translation.x
                         - cannon_transform.compute_transform().translation.x)
@@ -258,59 +264,6 @@ pub fn shoot_player_cannon_system(
     }
 }
 
-pub fn player_bullet_collision(
-    mut commands: Commands,
-    mut event_hit: EventWriter<Hit>,
-    enemy_query: Query<(Entity, &GlobalTransform), With<Enemy>>,
-    bullet_query: Query<(Entity, &Transform, &Bullet)>,
-    mut forcefield_query: Query<
-        (&GlobalTransform, &mut Visibility, &mut Shield),
-        (With<Enemy>, With<Parent>),
-    >,
-) {
-    // Check for forcefield collision
-    // On forcefield collision, just do the forcefield damage here and remove the bullet
-    // Forcefield radius is 18 units
-    for (forcefield_transform, mut forcefield_visibility, mut forcefield_stats) in
-        forcefield_query.iter_mut()
-    {
-        for (bullet_entity, bullet_transform, bullet_stats) in bullet_query.iter() {
-            let distance = forcefield_transform
-                .compute_transform()
-                .translation
-                .distance(bullet_transform.translation);
-            if distance < 18. && forcefield_visibility.is_visible {
-                forcefield_stats.health -= bullet_stats.damage;
-                if forcefield_stats.health <= 0 {
-                    forcefield_visibility.is_visible = false;
-                }
-
-                commands.entity(bullet_entity).despawn();
-                return;
-            }
-        }
-    }
-
-    // If no forcefield, check for enemy collision
-    // On collision, do hit event and remove bullet
-    for (enemy_entity, enemy_transform) in enemy_query.iter() {
-        for (bullet_entity, bullet_transform, bullet_stats) in bullet_query.iter() {
-            let distance = enemy_transform
-                .compute_transform()
-                .translation
-                .distance(bullet_transform.translation);
-            if distance < 5. {
-                event_hit.send(Hit {
-                    target: enemy_entity,
-                    damage: bullet_stats.damage,
-                });
-                commands.entity(bullet_entity).despawn();
-                return;
-            }
-        }
-    }
-}
-
 pub fn check_hits_system(
     mut event_hit: EventReader<Hit>,
     mut player_query: Query<(&mut Properties, Entity), (With<PlayerRoot>, Without<EnemyRoot>)>,
@@ -340,10 +293,12 @@ pub fn remove_zap_effect_system(mut commands: Commands, query: Query<Entity, Wit
 pub fn check_player_death_system(
     mut query: Query<&Properties, With<PlayerRoot>>,
     mut game_state: ResMut<State<GameState>>,
+    mut event_sound: EventWriter<SoundEvent>,
 ) {
     for properties in query.iter_mut() {
         if properties.health <= 0 {
             game_state.set(GameState::EndScreen).unwrap();
+            event_sound.send(SoundEvent(Sound::Death));
         }
     }
 }

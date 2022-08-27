@@ -1,3 +1,4 @@
+use asset::SoundHandles;
 use bevy::{
     diagnostic::EntityCountDiagnosticsPlugin, prelude::*, render::texture::ImageSettings,
     sprite::Material2dPlugin,
@@ -33,6 +34,7 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(COLOR_BACKGROUND_DARK))
         .insert_resource(Stats::default())
+        .insert_resource(SoundHandles::default())
         .add_plugins(DefaultPlugins)
         .add_plugin(EntityCountDiagnosticsPlugin)
         // ----- Game -----
