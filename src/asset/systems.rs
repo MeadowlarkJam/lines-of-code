@@ -39,19 +39,19 @@ pub fn play_sounds(
     for event in sound_events.iter() {
         match event {
             SoundEvent(Sound::Connect) => {
-                audio.play(sound_handles.hit.clone());
+                audio.play_with_settings(sound_handles.hit.clone(),PlaybackSettings::ONCE.with_volume(0.1));
             }
             SoundEvent(Sound::Hit) => {
-                audio.play(sound_handles.hit.clone());
+                audio.play_with_settings(sound_handles.hit.clone(),PlaybackSettings::ONCE.with_volume(0.1));
             }
             SoundEvent(Sound::Zap) => {
-                audio.play(sound_handles.laser.clone());
+                audio.play_with_settings(sound_handles.laser.clone(),PlaybackSettings::ONCE.with_volume(0.1));
             }
             SoundEvent(Sound::Death) => {
-                audio.play(sound_handles.death.clone());
+                audio.play_with_settings(sound_handles.death.clone(),PlaybackSettings::ONCE.with_volume(0.1));
             }
             SoundEvent(Sound::CannonShot) => {
-                audio.play(sound_handles.explosion.clone());
+                audio.play_with_settings(sound_handles.explosion.clone(),PlaybackSettings::ONCE.with_volume(0.1));
             }
         }
     }
