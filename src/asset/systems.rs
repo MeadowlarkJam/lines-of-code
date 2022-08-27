@@ -12,7 +12,6 @@ use super::resources::SoundHandles;
 
 pub fn load_ingame_assets_system(
     asset_server: Res<AssetServer>,
-    audio: Res<Audio>,
     mut sound_handles: ResMut<SoundHandles>,
 ) {
     let _ = asset_server.load::<Image, &str>(ASSET_SPRITES_DEBRIS);
@@ -27,9 +26,13 @@ pub fn load_ingame_assets_system(
     sound_handles.explosion = asset_server.load::<AudioSource, &str>(ASSET_AUDIO_EXPLOSION);
     sound_handles.hit = asset_server.load::<AudioSource, &str>(ASSET_AUDIO_HIT);
     sound_handles.loadup = asset_server.load::<AudioSource, &str>(ASSET_AUDIO_LOAD);
+}
 
+pub fn load_splash_sound(
+    asset_server: Res<AssetServer>,
+    audio: Res<Audio>) {
     audio.play_with_settings(
-        sound_handles.loadup.clone(),
+        asset_server.load::<AudioSource, &str>(ASSET_AUDIO_LOAD),
         PlaybackSettings::ONCE.with_volume(0.1),
     );
 }
