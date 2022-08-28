@@ -1528,6 +1528,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "escape-pod"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "bevy_editor_pls",
+ "rand",
+]
+
+[[package]]
 name = "euclid"
 version = "0.22.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2132,15 +2141,6 @@ checksum = "3c8469b4a23b962c1396b9b451dda50ef5b283e8dd309d69033475fa9b334324"
 dependencies = [
  "libc",
  "pkg-config",
-]
-
-[[package]]
-name = "lines-of-code"
-version = "0.1.0"
-dependencies = [
- "bevy",
- "bevy_editor_pls",
- "rand",
 ]
 
 [[package]]
