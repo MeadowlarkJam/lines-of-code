@@ -1,7 +1,7 @@
 use super::spawners::{spawn_boomy, spawn_shieldy, spawn_zappy};
 use super::{Enemy, EnemyDied, EnemyRoot, EnemyType};
 use crate::components::{Bullet, Cannon, Projectile};
-use crate::consts::ASSET_SPRITES_CANNON;
+use crate::consts::{ASSET_SPRITES_CANNON, PLAYER_SPEED};
 use crate::events::{Sound, SoundEvent};
 use crate::nodes::{spawn_cannon_node, spawn_zapper_node};
 use crate::player::PlayerRoot;
@@ -301,6 +301,7 @@ pub fn shoot_enemy_cannon_system(
 pub fn follow_player_in_range_system(
     player_query: Query<&Transform, With<PlayerRoot>>,
     mut enemy_query: Query<&mut Transform, (With<EnemyRoot>, Without<PlayerRoot>)>,
+    time: Res<Time>
 ) {
     for player_transform in player_query.iter() {
         for mut enemy_transform in enemy_query.iter_mut() {
@@ -310,7 +311,7 @@ pub fn follow_player_in_range_system(
             if distance < 200. && distance > 8. {
                 let direction =
                     (player_transform.translation - enemy_transform.translation).normalize();
-                enemy_transform.translation += direction * 0.6;
+                enemy_transform.translation += direction * 0.6 * PLAYER_SPEED * time.delta_seconds();
             }
         }
     }

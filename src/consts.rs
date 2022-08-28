@@ -1,7 +1,7 @@
 use bevy::prelude::Color;
 
 // Player
-pub const PLAYER_SPEED: f32 = 1.;
+pub const PLAYER_SPEED: f32 = 75.;
 
 // UI
 pub const COLOR_BACKGROUND_DARK: Color = Color::rgb(20.0 / 255.0, 17.0 / 255.0, 18.0 / 255.0);

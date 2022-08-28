@@ -59,6 +59,7 @@ pub fn move_player_system(
     mut query: Query<&mut Transform, With<PlayerRoot>>,
     mut starfield: Query<(&mut Starfield, &mut Transform), Without<PlayerRoot>>,
     mut materials: ResMut<Assets<CustomMaterial>>,
+    time: Res<Time>
 ) {
     // The player's movement directions
     let mut movement_x = 0.;
@@ -81,8 +82,8 @@ pub fn move_player_system(
     }
 
     // Move the player and clamp it to the screen
-    player_transform.translation.x += movement_x * PLAYER_SPEED;
-    player_transform.translation.y += movement_y * PLAYER_SPEED;
+    player_transform.translation.x += movement_x * PLAYER_SPEED * time.delta_seconds();
+    player_transform.translation.y += movement_y * PLAYER_SPEED * time.delta_seconds();
 
     let (sf, mut tf) = starfield.single_mut();
     tf.translation.x = player_transform.translation.x;
