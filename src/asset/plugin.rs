@@ -1,5 +1,5 @@
 use super::systems::{
-    load_ingame_assets_system, load_splash_sound, load_ui_assets_system, play_sounds,
+    load_ingame_assets_system, load_splash_sound, load_ui_assets_system, play_sounds, 
 };
 use crate::schedule::GameState;
 use bevy::prelude::*;
@@ -19,8 +19,7 @@ impl Plugin for AssetPlugin {
         )
         .add_system_set(
             SystemSet::on_enter(GameState::InGame)
-                .label(AssetSystem)
-                .with_system(load_ingame_assets_system),
+                .label(AssetSystem),
         )
         .add_system_set(SystemSet::on_update(GameState::InGame).with_system(play_sounds));
     }

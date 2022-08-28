@@ -6,7 +6,7 @@ use super::{
         spawn_end_screen_ui_system, spawn_ingame_ui_system, spawn_main_menu_ui_system,
         spawn_paused_ui_system, spawn_splash_screen_system, update_splash_screen_system,
         update_ui_enemies_alive_system, update_ui_kills_system, update_ui_player_stats_system,
-        update_ui_score_system,
+        update_ui_score_system, start_music, 
     },
 };
 use crate::{despawn_recursive::despawn_entities_recursive_system, schedule::GameState};
@@ -25,7 +25,8 @@ impl Plugin for UiPlugin {
             .add_system_set(
                 SystemSet::on_enter(GameState::SplashScreen)
                     .label(UiSystem)
-                    .with_system(spawn_splash_screen_system),
+                    .with_system(spawn_splash_screen_system)
+                    .with_system(start_music),
             )
             .add_system_set(
                 SystemSet::on_update(GameState::SplashScreen)
