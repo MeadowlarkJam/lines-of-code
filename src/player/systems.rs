@@ -57,7 +57,9 @@ pub fn spawn_player_system(mut commands: Commands, asset_server: Res<AssetServer
 pub fn move_player_system(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<&mut Transform, With<PlayerRoot>>,
+    #[cfg(not(target_arch = "wasm32"))]
     mut starfield: Query<(&mut Starfield, &mut Transform), Without<PlayerRoot>>,
+    #[cfg(not(target_arch = "wasm32"))]
     mut materials: ResMut<Assets<CustomMaterial>>,
 ) {
     // The player's movement directions
@@ -83,14 +85,17 @@ pub fn move_player_system(
     // Move the player and clamp it to the screen
     player_transform.translation.x = player_transform.translation.x + movement_x * PLAYER_SPEED;
     player_transform.translation.y = player_transform.translation.y + movement_y * PLAYER_SPEED;
-    let (sf, mut tf) = starfield.single_mut();
-    tf.translation.x = player_transform.translation.x;
-    tf.translation.y = player_transform.translation.y;
-    if let Some(custom_material) = materials.get_mut(&sf.handle) {
-        custom_material.pos = Vec2::new(
-            player_transform.translation.x,
-            player_transform.translation.y,
-        );
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let (sf, mut tf) = starfield.single_mut();
+        tf.translation.x = player_transform.translation.x;
+        tf.translation.y = player_transform.translation.y;
+        if let Some(custom_material) = materials.get_mut(&sf.handle) {
+            custom_material.pos = Vec2::new(
+                player_transform.translation.x,
+                player_transform.translation.y,
+            );
+        }
     }
 }
 
