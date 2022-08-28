@@ -35,6 +35,10 @@ fn main() {
         .insert_resource(ClearColor(COLOR_BACKGROUND_DARK))
         .insert_resource(Stats::default())
         .insert_resource(SoundHandles::default())
+        .insert_resource(WindowDescriptor {
+            title: String::from("Escape Pod"),
+            ..default()
+        })
         .add_plugins(DefaultPlugins)
         .add_plugin(EntityCountDiagnosticsPlugin)
         // ----- Game -----
