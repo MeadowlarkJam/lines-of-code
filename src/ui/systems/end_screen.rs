@@ -1,7 +1,7 @@
 use crate::{
     consts::{
         ASSET_FONTS_DEFAULT, COLOR_ACCENT, COLOR_BUTTON_DEFAULT, COLOR_FOREGROUND,
-        COLOR_TRANSPARENT,
+        COLOR_TRANSPARENT, ASSET_AUDIO_DEATH,
     },
     schedule::GameState,
     stats::Stats,
@@ -172,4 +172,9 @@ pub fn end_screen_button_interaction_system(
             }
         }
     }
+}
+
+pub fn end_screen_death_sound(audio: Res<Audio>,
+mut asset_server: Res<AssetServer>) {
+    audio.play_with_settings(asset_server.load::<AudioSource, &str>(ASSET_AUDIO_DEATH), PlaybackSettings::ONCE.with_volume(0.1));
 }
