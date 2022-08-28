@@ -3,7 +3,7 @@ use bevy::{
     diagnostic::EntityCountDiagnosticsPlugin, prelude::*, render::texture::ImageSettings,
     sprite::Material2dPlugin,
 };
-use bevy_editor_pls::prelude::*;
+//use bevy_editor_pls::prelude::*;
 
 mod components;
 mod consts;
@@ -49,7 +49,7 @@ fn main() {
         .add_plugin(stats::StatsPlugin)
         .add_plugin(ui::UiPlugin)
         // ----- Third party -----
-        .add_plugin(EditorPlugin)
+        //.add_plugin(EditorPlugin)
         // ----- Start -----
         .run();
 }
