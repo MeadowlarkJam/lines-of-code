@@ -3,6 +3,7 @@ use crate::{
         ASSET_AUDIO_DEATH, ASSET_AUDIO_EXPLOSION, ASSET_AUDIO_HIT, ASSET_AUDIO_LASER,
         ASSET_AUDIO_LOAD, ASSET_FONTS_DEFAULT, ASSET_SPRITES_CANNON, ASSET_SPRITES_DEBRIS,
         ASSET_SPRITES_FORCEFIELD, ASSET_SPRITES_PLAYER, ASSET_SPRITES_SHIELD, ASSET_SPRITES_ZAPPER,
+        MAX_AMOUNT_OF_SOUNDS_PER_FRAME,
     },
     events::{Sound, SoundEvent},
 };
@@ -28,9 +29,7 @@ pub fn load_ingame_assets_system(
     sound_handles.loadup = asset_server.load::<AudioSource, &str>(ASSET_AUDIO_LOAD);
 }
 
-pub fn load_splash_sound(
-    asset_server: Res<AssetServer>,
-    audio: Res<Audio>) {
+pub fn load_splash_sound(asset_server: Res<AssetServer>, audio: Res<Audio>) {
     audio.play_with_settings(
         asset_server.load::<AudioSource, &str>(ASSET_AUDIO_LOAD),
         PlaybackSettings::ONCE.with_volume(0.1),
@@ -46,7 +45,11 @@ pub fn play_sounds(
     audio: Res<Audio>,
     sound_handles: ResMut<SoundHandles>,
 ) {
-    for event in sound_events.iter() {
+    for (i, event) in sound_events.iter().enumerate() {
+        if i >= MAX_AMOUNT_OF_SOUNDS_PER_FRAME {
+            break;
+        }
+
         match event {
             SoundEvent(Sound::Hit) => {
                 audio.play_with_settings(
@@ -74,4 +77,6 @@ pub fn play_sounds(
             }
         }
     }
+
+    sound_events.clear();
 }

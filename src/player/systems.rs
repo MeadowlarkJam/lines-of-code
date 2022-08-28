@@ -346,10 +346,13 @@ pub fn check_attachment_system(
 
                 attachable_transform.translation = Vec3::new(x, y, 0.0);
 
-                // FIXME:
-                // This doesn't work currently. The object is not moved correctly when
-                // looking up or down while collecting it.
-                attachable_transform.rotate_around(Vec3::ZERO, root_transform.rotation);
+                // We need to flip the `Z` coordinate here so that things that connect
+                // at the top will stay at the top and won't get rotated and stick to the bottom.
+                let euler = root_transform.rotation.to_euler(EulerRot::XYZ);
+                attachable_transform.rotate_around(
+                    Vec3::ZERO,
+                    Quat::from_euler(EulerRot::XYZ, euler.0, euler.1, -euler.2),
+                );
 
                 event_writer.send(PlayerSizeIncreased);
             }

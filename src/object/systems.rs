@@ -218,7 +218,8 @@ pub fn bullet_collision(
                 if bullet_stats.enemy == is_enemy.is_some() {
                     continue;
                 }
-                forcefield_stats.health -= bullet_stats.damage;
+                forcefield_stats.health =
+                    forcefield_stats.health.saturating_sub(bullet_stats.damage);
                 if forcefield_stats.health <= 0 {
                     forcefield_visibility.is_visible = false;
                     forcefield_stats.cooldown_timer = forcefield_stats.cooldown;

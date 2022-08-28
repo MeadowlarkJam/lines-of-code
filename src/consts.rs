@@ -29,3 +29,6 @@ pub const ASSET_AUDIO_LASER: &str = "sounds/lasershot1.wav";
 pub const ASSET_AUDIO_EXPLOSION: &str = "sounds/explosion.wav";
 pub const ASSET_AUDIO_HIT: &str = "sounds/modhit.wav";
 pub const ASSET_AUDIO_LOAD: &str = "sounds/spaceIntro.ogg";
+
+// Audio
+pub const MAX_AMOUNT_OF_SOUNDS_PER_FRAME: usize = 1;
