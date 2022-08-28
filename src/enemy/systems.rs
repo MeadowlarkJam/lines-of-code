@@ -213,7 +213,7 @@ pub fn shoot_zappy_enemy_system(
                                     ..default()
                                 },
                                 sprite: Sprite {
-                                    color: Color::rgb(1., 1., 0.),
+                                    color: Color::rgb(1., 0., 0.),
                                     ..default()
                                 },
                                 ..default()

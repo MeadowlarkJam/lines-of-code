@@ -12,7 +12,7 @@ pub fn spawn_main_menu_ui_system(mut commands: Commands, asset_server: Res<Asset
     let font = asset_server.get_handle(ASSET_FONTS_DEFAULT);
 
     let button_style = Style {
-        size: Size::new(Val::Px(400.0), Val::Px(100.0)),
+        size: Size::new(Val::Percent(40.), Val::Percent(30.)),
         margin: UiRect::all(Val::Px(10.0)),
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
