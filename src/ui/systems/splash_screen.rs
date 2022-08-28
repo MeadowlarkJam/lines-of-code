@@ -59,5 +59,5 @@ pub fn start_music(
     audio: Res<Audio>,
     asset_server: Res<AssetServer>
 ) {
-    audio.play_with_settings(asset_server.load(ASSET_AUDIO_BG_SONG), PlaybackSettings::LOOP.with_volume(0.1));
+    audio.play_with_settings(asset_server.load(ASSET_AUDIO_BG_SONG), PlaybackSettings::LOOP.with_volume(0.2));
 }
