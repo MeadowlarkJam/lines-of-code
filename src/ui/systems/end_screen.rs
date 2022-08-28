@@ -17,7 +17,7 @@ pub fn spawn_end_screen_ui_system(
     let font = asset_server.get_handle(ASSET_FONTS_DEFAULT);
 
     let button_style = Style {
-        size: Size::new(Val::Px(400.0), Val::Px(100.0)),
+        size: Size::new(Val::Percent(40.), Val::Percent(20.)),
         margin: UiRect::all(Val::Px(10.0)),
         justify_content: JustifyContent::Center,
         align_items: AlignItems::Center,
@@ -26,7 +26,7 @@ pub fn spawn_end_screen_ui_system(
 
     let button_text_style = TextStyle {
         font: font.clone(),
-        font_size: 80.0,
+        font_size: 60.,
         color: COLOR_FOREGROUND,
     };
 
@@ -50,7 +50,7 @@ pub fn spawn_end_screen_ui_system(
                     "You died!",
                     TextStyle {
                         font: asset_server.get_handle(ASSET_FONTS_DEFAULT),
-                        font_size: 140.0,
+                        font_size: 120.0,
                         color: COLOR_ACCENT,
                     },
                 )
