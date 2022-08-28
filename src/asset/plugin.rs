@@ -19,7 +19,8 @@ impl Plugin for AssetPlugin {
         )
         .add_system_set(
             SystemSet::on_enter(GameState::InGame)
-                .label(AssetSystem),
+                .label(AssetSystem)
+                .with_system(load_ingame_assets_system),
         )
         .add_system_set(SystemSet::on_update(GameState::InGame).with_system(play_sounds));
     }
