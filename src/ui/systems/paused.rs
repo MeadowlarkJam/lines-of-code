@@ -17,7 +17,7 @@ pub fn spawn_paused_ui_system(mut commands: Commands, asset_server: Res<AssetSer
     };
 
     let button_text_style = TextStyle {
-        font: font.clone(),
+        font,
         font_size: 80.0,
         color: COLOR_FOREGROUND,
     };
@@ -82,6 +82,7 @@ pub fn spawn_paused_ui_system(mut commands: Commands, asset_server: Res<AssetSer
         });
 }
 
+#[allow(clippy::type_complexity)]
 pub fn paused_button_interaction_system(
     query: Query<(&Interaction, &PausedScreenButtonAction), (Changed<Interaction>, With<Button>)>,
     mut app_exit_events: EventWriter<AppExit>,

@@ -4,8 +4,8 @@ use crate::{
 
 use super::{
     systems::{
-        check_enemy_death_system, follow_player_in_range_system, shoot_enemy_cannon_system,
-        shoot_zappy_enemy_system, spawn_random_enemies_system,
+        check_enemy_death_system, clean_enemies_system, follow_player_in_range_system,
+        shoot_enemy_cannon_system, shoot_zappy_enemy_system, spawn_random_enemies_system,
     },
     EnemyDied, EnemyRoot,
 };
@@ -31,7 +31,8 @@ impl Plugin for EnemyPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::InGame)
                     .label(EnemySystem)
-                    .with_system(spawn_random_enemies_system),
+                    .with_system(spawn_random_enemies_system)
+                    .with_system(clean_enemies_system.before(spawn_random_enemies_system)),
             )
             .add_system_set(
                 SystemSet::on_exit(GameState::InGame)

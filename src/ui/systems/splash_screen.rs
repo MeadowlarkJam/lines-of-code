@@ -1,5 +1,5 @@
 use crate::{
-    consts::{ASSET_FONTS_DEFAULT, COLOR_ACCENT, ASSET_AUDIO_BG_SONG},
+    consts::{ASSET_AUDIO_BG_SONG, ASSET_FONTS_DEFAULT, COLOR_ACCENT},
     schedule::GameState,
     ui::components::{OnSplashScreen, SplashScreenTimer},
 };
@@ -55,9 +55,9 @@ pub fn update_splash_screen_system(
     }
 }
 
-pub fn start_music(
-    audio: Res<Audio>,
-    asset_server: Res<AssetServer>
-) {
-    audio.play_with_settings(asset_server.load(ASSET_AUDIO_BG_SONG), PlaybackSettings::LOOP.with_volume(0.2));
+pub fn start_music(audio: Res<Audio>, asset_server: Res<AssetServer>) {
+    audio.play_with_settings(
+        asset_server.load(ASSET_AUDIO_BG_SONG),
+        PlaybackSettings::LOOP.with_volume(0.2),
+    );
 }

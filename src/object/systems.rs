@@ -11,6 +11,7 @@ use crate::{
 use bevy::prelude::*;
 use std::f32::consts::TAU;
 
+#[allow(clippy::type_complexity)]
 pub fn move_objects_system(
     mut query: Query<
         (&mut Transform, &mut Velocity),
@@ -65,6 +66,7 @@ pub fn _spawn_object_system(
 }
 
 // Clean all the objects that are the length of the diagonal of the screen away from the player
+#[allow(clippy::type_complexity)]
 pub fn _clean_objects_system(
     mut commands: Commands,
     windows: Res<Windows>,
@@ -115,7 +117,7 @@ pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<Asse
             0.,
         ),
         0.,
-        zapper_handle.clone(),
+        zapper_handle,
         Zapper {
             damage: 10,
             fire_rate: 1.,
@@ -183,6 +185,7 @@ pub fn move_projectile(mut query: Query<(&mut Transform, &Velocity), With<Projec
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub fn bullet_collision(
     mut commands: Commands,
     mut event_hit: EventWriter<Hit>,
@@ -220,7 +223,7 @@ pub fn bullet_collision(
                 }
                 forcefield_stats.health =
                     forcefield_stats.health.saturating_sub(bullet_stats.damage);
-                if forcefield_stats.health <= 0 {
+                if forcefield_stats.health == 0 {
                     forcefield_visibility.is_visible = false;
                     forcefield_stats.cooldown_timer = forcefield_stats.cooldown;
                 }
@@ -251,6 +254,24 @@ pub fn bullet_collision(
                 commands.entity(bullet_entity).despawn();
                 return;
             }
+        }
+    }
+}
+
+#[allow(clippy::type_complexity)]
+pub fn clean_bullets(
+    mut commands: Commands,
+    player_query: Query<&Transform, With<PlayerRoot>>,
+    projectile_query: Query<(&Transform, Entity), (With<Projectile>, Without<PlayerRoot>)>,
+) {
+    let player_transform = player_query.single();
+
+    for (projectile_transform, projectile_entity) in projectile_query.iter() {
+        let distance = player_transform
+            .translation
+            .distance(projectile_transform.translation);
+        if distance > 3000. {
+            commands.entity(projectile_entity).despawn();
         }
     }
 }

@@ -1,6 +1,6 @@
 use super::systems::{
-    bullet_collision, forcefield_cooldown_system, move_objects_system, move_projectile,
-    spawn_start_objects_system, velocity_dropoff_system,
+    bullet_collision, clean_bullets, forcefield_cooldown_system, move_objects_system,
+    move_projectile, spawn_start_objects_system, velocity_dropoff_system,
 };
 use crate::{
     components::{Object, Projectile, ZapEffect},
@@ -30,7 +30,8 @@ impl Plugin for ObjectPlugin {
                 .with_system(move_projectile)
                 .with_system(velocity_dropoff_system)
                 .with_system(bullet_collision)
-                .with_system(forcefield_cooldown_system),
+                .with_system(forcefield_cooldown_system)
+                .with_system(clean_bullets.after(bullet_collision)),
         )
         .add_system_set(
             SystemSet::on_exit(GameState::InGame)

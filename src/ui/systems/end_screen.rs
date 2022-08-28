@@ -25,7 +25,7 @@ pub fn spawn_end_screen_ui_system(
     };
 
     let button_text_style = TextStyle {
-        font: font.clone(),
+        font,
         font_size: 60.,
         color: COLOR_FOREGROUND,
     };
@@ -158,6 +158,7 @@ pub fn spawn_end_screen_ui_system(
         });
 }
 
+#[allow(clippy::type_complexity)]
 pub fn end_screen_button_interaction_system(
     query: Query<(&Interaction, &EndScreenButtonAction), (Changed<Interaction>, With<Button>)>,
     mut app_exit_events: EventWriter<AppExit>,
@@ -174,7 +175,7 @@ pub fn end_screen_button_interaction_system(
     }
 }
 
-pub fn end_screen_death_sound(audio: Res<Audio>, mut asset_server: Res<AssetServer>) {
+pub fn end_screen_death_sound(audio: Res<Audio>, asset_server: Res<AssetServer>) {
     audio.play_with_settings(
         asset_server.load::<AudioSource, &str>(ASSET_AUDIO_DEATH),
         PlaybackSettings::ONCE.with_volume(0.1),

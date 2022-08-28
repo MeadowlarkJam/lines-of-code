@@ -60,7 +60,6 @@ pub fn spawn_shield_forcefield<'a>(
                 translation: position,
                 scale,
                 rotation: Quat::from_rotation_z(rotation),
-                ..default()
             },
             texture: asset,
             ..default()

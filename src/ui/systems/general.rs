@@ -1,6 +1,7 @@
 use crate::consts::{COLOR_BUTTON_CLICKED, COLOR_BUTTON_DEFAULT, COLOR_BUTTON_HOVERED};
 use bevy::prelude::*;
 
+#[allow(clippy::type_complexity)]
 pub fn button_highlight_system(
     mut query: Query<(&Interaction, &mut UiColor), (Changed<Interaction>, With<Button>)>,
 ) {

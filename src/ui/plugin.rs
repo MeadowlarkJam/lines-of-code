@@ -4,9 +4,9 @@ use super::{
         button_highlight_system, end_screen_button_interaction_system, end_screen_death_sound,
         main_menu_button_interaction_system, paused_button_interaction_system,
         spawn_end_screen_ui_system, spawn_ingame_ui_system, spawn_main_menu_ui_system,
-        spawn_paused_ui_system, spawn_splash_screen_system, update_splash_screen_system,
-        update_ui_enemies_alive_system, update_ui_kills_system, update_ui_player_stats_system,
-        update_ui_score_system, start_music, 
+        spawn_paused_ui_system, spawn_splash_screen_system, start_music,
+        update_splash_screen_system, update_ui_enemies_alive_system, update_ui_kills_system,
+        update_ui_player_stats_system, update_ui_score_system,
     },
 };
 use crate::{despawn_recursive::despawn_entities_recursive_system, schedule::GameState};

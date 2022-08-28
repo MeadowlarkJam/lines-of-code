@@ -11,7 +11,7 @@ pub fn spawn_ingame_ui_system(mut commands: Commands, asset_server: Res<AssetSer
     let font = asset_server.get_handle(ASSET_FONTS_DEFAULT);
 
     let text_style = TextStyle {
-        font: font.clone(),
+        font,
         font_size: 60.0,
         color: COLOR_FOREGROUND,
     };

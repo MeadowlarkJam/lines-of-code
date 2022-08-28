@@ -1,5 +1,5 @@
 use super::systems::{
-    load_ingame_assets_system, load_splash_sound, load_ui_assets_system, play_sounds, 
+    load_ingame_assets_system, load_splash_sound, load_ui_assets_system, play_sounds,
 };
 use crate::schedule::GameState;
 use bevy::prelude::*;

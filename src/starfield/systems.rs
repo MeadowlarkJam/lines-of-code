@@ -29,7 +29,7 @@ pub fn spawn_starfield_system(
     commands
         .spawn_bundle(MaterialMesh2dBundle {
             mesh: quad_handle.into(),
-            material: material_handle.clone().into(),
+            material: material_handle.clone(),
             transform: Transform::from_xyz(0.0, 0.0, -1.0),
             ..default()
         })

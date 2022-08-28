@@ -33,7 +33,7 @@ pub fn check_for_events_system(
     event_reader: EventReader<GotoMainMenu>,
     mut game_state: ResMut<State<GameState>>,
 ) {
-    if event_reader.len() > 0 {
+    if !event_reader.is_empty() {
         game_state.set(GameState::MainMenu).unwrap();
     }
     event_reader.clear();

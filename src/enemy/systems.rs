@@ -26,7 +26,7 @@ pub fn check_enemy_death_system(
     mut event_writer: EventWriter<EnemyDied>,
 ) {
     for (properties, entity, root, transform) in query.iter_mut() {
-        if properties.health <= 0 {
+        if properties.health == 0 {
             event_writer.send(EnemyDied);
 
             let debris_handle = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
@@ -310,7 +310,7 @@ pub fn follow_player_in_range_system(
             if distance < 200. && distance > 8. {
                 let direction =
                     (player_transform.translation - enemy_transform.translation).normalize();
-                enemy_transform.translation = enemy_transform.translation + direction * 0.6;
+                enemy_transform.translation += direction * 0.6;
             }
         }
     }
@@ -377,7 +377,7 @@ pub fn spawn_random_enemies_system(
 }
 
 // Clean enemies if the distance is too high
-pub fn _clean_enemies_system(
+pub fn clean_enemies_system(
     mut commands: Commands,
     mut stats: ResMut<Stats>,
     player_query: Query<&Transform, With<PlayerRoot>>,
@@ -388,8 +388,8 @@ pub fn _clean_enemies_system(
             let distance = player_transform
                 .translation
                 .distance(enemy_transform.translation);
-            if distance > 5000. {
-                commands.entity(enemy_entity).despawn();
+            if distance > 3000. {
+                commands.entity(enemy_entity).despawn_recursive();
                 stats.enemies_alive -= 1;
             }
         }

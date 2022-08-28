@@ -70,8 +70,8 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, pos
         &mut commands,
         Vec3::new(-16., -8., 0.),
         rand::random::<f32>() * 2. * std::f32::consts::PI,
-        shield_handle.clone(),
-        forcefield_handle.clone(),
+        shield_handle,
+        forcefield_handle,
         Shield {
             health: 10,
             cooldown: 3.,

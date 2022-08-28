@@ -26,6 +26,7 @@ mod starfield;
 mod stats;
 mod ui;
 
+#[allow(clippy::type_complexity)]
 fn main() {
     App::new()
         // ----- Bevy -----

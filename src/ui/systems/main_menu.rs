@@ -1,7 +1,7 @@
 use crate::{
     consts::{
         ASSET_FONTS_DEFAULT, COLOR_ACCENT, COLOR_BUTTON_DEFAULT, COLOR_FOREGROUND,
-        COLOR_TRANSPARENT, ASSET_AUDIO_BG_SONG,
+        COLOR_TRANSPARENT,
     },
     schedule::GameState,
     ui::components::{MainMenuButtonAction, OnMainMenuScreen},
@@ -20,7 +20,7 @@ pub fn spawn_main_menu_ui_system(mut commands: Commands, asset_server: Res<Asset
     };
 
     let button_text_style = TextStyle {
-        font: font.clone(),
+        font,
         font_size: 80.0,
         color: COLOR_FOREGROUND,
     };
@@ -90,6 +90,7 @@ pub fn spawn_main_menu_ui_system(mut commands: Commands, asset_server: Res<Asset
         });
 }
 
+#[allow(clippy::type_complexity)]
 pub fn main_menu_button_interaction_system(
     query: Query<(&Interaction, &MainMenuButtonAction), (Changed<Interaction>, With<Button>)>,
     mut app_exit_events: EventWriter<AppExit>,
@@ -104,4 +105,3 @@ pub fn main_menu_button_interaction_system(
         }
     }
 }
-

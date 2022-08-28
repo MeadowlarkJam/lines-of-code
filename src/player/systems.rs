@@ -45,7 +45,7 @@ pub fn spawn_player_system(mut commands: Commands, asset_server: Res<AssetServer
                 translation: Vec3::new(0.0, 0.0, 1.0),
                 ..default()
             },
-            texture: player_handle.clone(),
+            texture: player_handle,
             ..default()
         })
         .add_child(player_root_entity);
@@ -81,8 +81,8 @@ pub fn move_player_system(
     }
 
     // Move the player and clamp it to the screen
-    player_transform.translation.x = player_transform.translation.x + movement_x * PLAYER_SPEED;
-    player_transform.translation.y = player_transform.translation.y + movement_y * PLAYER_SPEED;
+    player_transform.translation.x += movement_x * PLAYER_SPEED;
+    player_transform.translation.y += movement_y * PLAYER_SPEED;
 
     let (sf, mut tf) = starfield.single_mut();
     tf.translation.x = player_transform.translation.x;
@@ -266,6 +266,7 @@ pub fn shoot_player_cannon_system(
     }
 }
 
+#[allow(clippy::type_complexity)]
 pub fn check_hits_system(
     mut event_hit: EventReader<Hit>,
     mut player_query: Query<(&mut Properties, Entity), (With<PlayerRoot>, Without<EnemyRoot>)>,
@@ -275,13 +276,8 @@ pub fn check_hits_system(
     for hit in event_hit.iter() {
         if hit.target == player_entity {
             player_stats.health = player_stats.health.saturating_sub(hit.damage);
-        } else {
-            match enemy_query.get_mut(hit.target) {
-                Ok((mut enemy_properties, _)) => {
-                    enemy_properties.health = enemy_properties.health.saturating_sub(hit.damage);
-                }
-                Err(_) => {}
-            }
+        } else if let Ok((mut enemy_properties, _)) = enemy_query.get_mut(hit.target) {
+            enemy_properties.health = enemy_properties.health.saturating_sub(hit.damage);
         }
     }
 }
@@ -298,7 +294,7 @@ pub fn check_player_death_system(
     mut event_sound: EventWriter<SoundEvent>,
 ) {
     for properties in query.iter_mut() {
-        if properties.health <= 0 {
+        if properties.health == 0 {
             game_state.set(GameState::EndScreen).unwrap();
             event_sound.send(SoundEvent(Sound::Death));
         }
@@ -309,6 +305,7 @@ pub fn check_player_death_system(
 //ATTACHMENT
 //#########################
 
+#[allow(clippy::type_complexity)]
 pub fn check_attachment_system(
     mut commands: Commands,
     player_query: Query<&GlobalTransform, (With<Player>, Without<PlayerRoot>)>,
