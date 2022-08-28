@@ -72,7 +72,7 @@ fn starfield(samplePosition: vec2<f32>, threshold: f32) -> vec3<f32> {
 }
 
 struct CustomMaterial {
-    pos: vec2<f32>,
+    pos: vec4<f32>,
 };
 
 @group(1) @binding(0)
@@ -87,7 +87,7 @@ fn fragment(
 
     var finalColor: vec3<f32> = vec3<f32>(0.0,0.0,0.0);
     let sCoord: vec2<f32> = (position.xy / 800.0)*5.0;
-    var pos: vec2<f32> = material.pos / 100.0;
+    var pos: vec2<f32> = material.pos.xy / 100.0;
     pos.y = -pos.y;
     
     // Add starfields

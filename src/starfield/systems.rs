@@ -23,7 +23,7 @@ pub fn spawn_starfield_system(
     ))));
 
     let material_handle = materials.add(CustomMaterial {
-        pos: Vec2::new(0.0, 0.0),
+        pos: Vec4::new(0.0, 0.0, 0.0, 0.0),
     });
 
     commands
@@ -42,7 +42,7 @@ pub fn spawn_starfield_system(
 #[uuid = "f690fdae-d598-45ab-8225-97e2a3f056e0"]
 pub struct CustomMaterial {
     #[uniform(0)]
-    pub pos: Vec2,
+    pub pos: Vec4,
 }
 
 impl Material2d for CustomMaterial {
