@@ -301,7 +301,7 @@ pub fn follow_player_in_range_system(
             let distance = player_transform
                 .translation
                 .distance(enemy_transform.translation);
-            if distance < 200. && distance > 8. {
+            if distance > 8. {
                 let direction =
                     (player_transform.translation - enemy_transform.translation).normalize();
                 enemy_transform.translation += direction * 0.6 * ENEMY_SPEED * time.delta_seconds();
@@ -315,18 +315,20 @@ pub fn spawn_random_enemies_system(
     stats: Res<Stats>,
     windows: Res<Windows>,
     sprite_handles: Res<SpriteHandles>,
-    player_query: Query<&Transform, With<PlayerRoot>>,
+    player_query: Query<(&PlayerRoot, &Transform), With<PlayerRoot>>,
     mut enemy_spawned_event: EventWriter<EnemySpawned>,
 ) {
     // 5 enemies at max
     if stats.enemies_alive < stats.kills + 1 {
-        let player_transform = player_query.single().translation;
+        let (player_root, player_transform) = player_query.single();
+        let player_transform = player_transform.translation;
         // Spawn a random enemy just outside of the screen
         // Due to the camera zoom, the side of the screen is actually not the side of the viewport
-        let half_width = windows.get_primary().unwrap().width() as f32 / 7.;
-        let half_height = windows.get_primary().unwrap().height() as f32 / 7.;
+        let scale = (0.25 + (0.01 * (player_root.dist / 8.0))) / 0.25;
+        let half_width = (windows.get_primary().unwrap().width() as f32 / 7.) * scale;
+        let half_height = (windows.get_primary().unwrap().height() as f32 / 7.) * scale;
         let screen_side = rand::thread_rng().gen_range(0..4);
-        let offset = 0.;
+        let offset = 40.;
         let position = player_transform
             + match screen_side {
                 // Left

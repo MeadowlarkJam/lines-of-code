@@ -1,4 +1,7 @@
-use super::{camera_follow_system, systems::spawn_camera_system};
+use super::{
+    camera_follow_system,
+    systems::{camera_zoom_system, spawn_camera_system},
+};
 use crate::{player::PlayerSystem, schedule::GameState};
 use bevy::prelude::*;
 
@@ -18,7 +21,8 @@ impl Plugin for CameraPlugin {
             SystemSet::on_update(GameState::InGame)
                 .label(CameraSystem)
                 .after(PlayerSystem)
-                .with_system(camera_follow_system),
+                .with_system(camera_follow_system)
+                .with_system(camera_zoom_system),
         );
     }
 }
