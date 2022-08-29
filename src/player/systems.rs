@@ -8,7 +8,6 @@ use crate::{
     events::Hit,
     object::Object,
     schedule::GameState,
-    starfield::{CustomMaterial, Starfield},
 };
 use bevy::{prelude::*, render::camera::RenderTarget};
 
@@ -55,8 +54,6 @@ pub fn spawn_player_system(mut commands: Commands, sprite_handles: Res<SpriteHan
 pub fn move_player_system(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<&mut Transform, With<PlayerRoot>>,
-    mut starfield: Query<(&mut Starfield, &mut Transform), Without<PlayerRoot>>,
-    mut materials: ResMut<Assets<CustomMaterial>>,
     time: Res<Time>,
 ) {
     // The player's movement directions
@@ -82,19 +79,6 @@ pub fn move_player_system(
     // Move the player and clamp it to the screen
     player_transform.translation.x += movement_x * PLAYER_SPEED * time.delta_seconds();
     player_transform.translation.y += movement_y * PLAYER_SPEED * time.delta_seconds();
-
-    // Move the starfield to the player position
-    let (sf, mut tf) = starfield.single_mut();
-    tf.translation.x = player_transform.translation.x;
-    tf.translation.y = player_transform.translation.y;
-    if let Some(custom_material) = materials.get_mut(&sf.handle) {
-        custom_material.pos = Vec4::new(
-            player_transform.translation.x,
-            player_transform.translation.y,
-            0.0,
-            0.0,
-        );
-    }
 }
 
 pub fn rotate_player_system(
