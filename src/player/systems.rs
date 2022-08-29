@@ -1,4 +1,6 @@
-use super::{constants::PLAYER_SPEED, Player, PlayerRoot, PlayerSizeIncreased};
+use std::time::Duration;
+
+use super::{constants::PLAYER_SPEED, Player, PlayerHistory, PlayerRoot, PlayerSizeIncreased};
 use crate::{
     asset::SpriteHandles,
     audio::{AudioEvent, AudioType},
@@ -369,5 +371,19 @@ pub fn update_player_properties_system(
     if player_size_increase > 0 {
         properties.size += player_size_increase;
         properties.health += player_size_increase * 10;
+    }
+}
+
+pub fn update_player_history_system(
+    query: Query<&Transform, With<PlayerRoot>>,
+    mut player_history: ResMut<PlayerHistory>,
+    time: Res<Time>,
+) {
+    player_history
+        .timer
+        .tick(Duration::from_secs_f32(time.delta_seconds()));
+    if player_history.timer.just_finished() {
+        let transform = query.single();
+        player_history.update_position(transform.translation);
     }
 }

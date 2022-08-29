@@ -6,7 +6,7 @@ use crate::audio::{AudioEvent, AudioType};
 use crate::components::{Bullet, Cannon, Projectile};
 use crate::nodes::{spawn_cannon_node, spawn_zapper_node};
 use crate::object::Object;
-use crate::player::PlayerRoot;
+use crate::player::{PlayerHistory, PlayerRoot};
 use crate::stats::Stats;
 use crate::{
     components::{Properties, Shield, Velocity, ZapEffect, Zapper},
@@ -163,6 +163,7 @@ pub fn shoot_zappy_enemy_system(
 
     mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Enemy>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Player>>,
+    player_history: Res<PlayerHistory>,
 ) {
     for (zapper_transform, mut zapper_stats) in zapper_query.iter_mut() {
         if zapper_stats.cooldown_timer > 0. {
@@ -170,12 +171,16 @@ pub fn shoot_zappy_enemy_system(
         } else {
             for (shootable_transform, _shootable_entity, shootable_parent) in shootable_query.iter()
             {
-                let distance = zapper_transform
+                let distance = shootable_transform
                     .compute_transform()
                     .translation
-                    .distance(shootable_transform.compute_transform().translation);
+                    .distance(player_history.target_position);
+                let laser_distance = zapper_transform
+                    .compute_transform()
+                    .translation
+                    .distance(player_history.target_position);
                 // If there is a hit
-                if distance < zapper_stats.range {
+                if distance < 4. && laser_distance < zapper_stats.range {
                     zapper_stats.cooldown_timer = zapper_stats.fire_rate;
                     event_hit.send(Hit {
                         target: shootable_parent.get(),
@@ -183,12 +188,12 @@ pub fn shoot_zappy_enemy_system(
                     });
                     event_audio.send(AudioEvent(AudioType::Laser));
                     event_audio.send(AudioEvent(AudioType::Hit));
-                    // Draw a yellow rectangle between the target and the zapper
+                    // Draw a red rectangle between the target and the zapper
                     let zapper_computed_transform = zapper_transform.compute_transform();
 
                     // Draw squares, interpolated between the two points
-                    for i in 1..distance.floor() as i32 {
-                        let t = i as f32 / distance.floor();
+                    for i in 1..laser_distance as i32 {
+                        let t = i as f32 / laser_distance.floor();
                         let x = zapper_computed_transform.translation.x
                             + (shootable_transform.compute_transform().translation.x
                                 - zapper_computed_transform.translation.x)
@@ -215,7 +220,45 @@ pub fn shoot_zappy_enemy_system(
                     }
 
                     // Only one shot per cooldown
-                    break;
+                    return;
+                }
+            }
+            //If nothing hits, just shoot wherever
+            zapper_stats.cooldown_timer = zapper_stats.fire_rate;
+            event_audio.send(AudioEvent(AudioType::Laser));
+            // Draw a red rectangle between the target and the zapper
+            let zapper_computed_transform = zapper_transform.compute_transform();
+
+            let laser_distance = zapper_computed_transform
+                .translation
+                .distance(player_history.target_position);
+            if laser_distance < zapper_stats.range {
+                // Draw squares, interpolated between the two points
+                for i in 1..laser_distance as i32 {
+                    let t = i as f32 / laser_distance.floor();
+                    let x = zapper_computed_transform.translation.x
+                        + (player_history.target_position.x
+                            - zapper_computed_transform.translation.x)
+                            * t;
+                    let y = zapper_computed_transform.translation.y
+                        + (player_history.target_position.y
+                            - zapper_computed_transform.translation.y)
+                            * t;
+                    commands
+                        .spawn()
+                        .insert_bundle(SpriteBundle {
+                            transform: Transform {
+                                translation: Vec3::new(x, y, 0.),
+                                scale: Vec3::new(2., 2., 0.),
+                                ..default()
+                            },
+                            sprite: Sprite {
+                                color: Color::rgb(1., 0., 0.),
+                                ..default()
+                            },
+                            ..default()
+                        })
+                        .insert(ZapEffect);
                 }
             }
         }
@@ -361,8 +404,8 @@ pub fn spawn_random_enemies_system(
             // Spawn a random enemy
             let enemy_type = rand::thread_rng().gen_range(0..3);
             match enemy_type {
-                0 => spawn_shieldy(commands, sprite_handles, position),
-                1 => spawn_boomy(commands, sprite_handles, position),
+                0 => spawn_zappy(commands, sprite_handles, position),
+                1 => spawn_zappy(commands, sprite_handles, position),
                 _ => spawn_zappy(commands, sprite_handles, position),
             }
         }
