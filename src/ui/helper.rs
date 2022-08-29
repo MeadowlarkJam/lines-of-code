@@ -86,8 +86,8 @@ pub fn default_button_bundle() -> ButtonBundle {
     ButtonBundle {
         style: Style {
             size: Size::new(Val::Percent(40.), Val::Percent(10.)),
-            padding: UiRect::all(Val::Px(20.0)),
-            margin: UiRect::all(Val::Px(10.0)),
+            padding: UiRect::all(Val::Px(10.0)),
+            margin: UiRect::all(Val::Px(5.0)),
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
             ..default()

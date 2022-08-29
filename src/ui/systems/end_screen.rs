@@ -70,7 +70,7 @@ pub fn spawn_end_screen_ui_system(
                         Val::Undefined,
                         Val::Undefined,
                         Val::Undefined,
-                        Val::Px(50.0),
+                        Val::Px(20.0),
                     ),
                     ..default()
                 })
