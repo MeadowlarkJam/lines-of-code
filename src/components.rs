@@ -1,12 +1,6 @@
 use bevy::prelude::*;
 
 #[derive(Component)]
-pub struct Object;
-
-#[derive(Component)]
-pub struct Item;
-
-#[derive(Component)]
 pub struct Collider;
 
 #[derive(Component)]

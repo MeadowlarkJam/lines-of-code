@@ -1,6 +1,5 @@
-use bevy::prelude::*;
-
 use super::CustomMaterial;
+use bevy::prelude::*;
 
 #[derive(Component)]
 pub struct Starfield {

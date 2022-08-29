@@ -4,12 +4,3 @@ pub struct Hit {
     pub damage: u32,
     pub target: Entity,
 }
-
-pub enum Sound {
-    Hit,
-    Zap,
-    Death,
-    CannonShot,
-}
-
-pub struct SoundEvent(pub Sound);

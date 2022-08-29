@@ -1,36 +1,20 @@
 use crate::{
-    consts::{ASSET_FONTS_DEFAULT, COLOR_BUTTON_DEFAULT, COLOR_FOREGROUND, COLOR_TRANSPARENT},
+    asset::FontHandles,
     schedule::{GameState, GotoMainMenu},
-    ui::components::{OnPausedScreen, PausedScreenButtonAction},
+    ui::{
+        components::{OnPausedScreen, PausedScreenButtonAction},
+        helper::{default_button_bundle, default_node_bundle_style},
+    },
+    ui::{constants::COLOR_TRANSPARENT, helper::default_small_button_text_style},
 };
 use bevy::{app::AppExit, prelude::*};
 
-pub fn spawn_paused_ui_system(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font = asset_server.get_handle(ASSET_FONTS_DEFAULT);
-
-    let button_style = Style {
-        size: Size::new(Val::Px(400.0), Val::Px(100.0)),
-        margin: UiRect::all(Val::Px(10.0)),
-        justify_content: JustifyContent::Center,
-        align_items: AlignItems::Center,
-        ..default()
-    };
-
-    let button_text_style = TextStyle {
-        font,
-        font_size: 80.0,
-        color: COLOR_FOREGROUND,
-    };
-
+pub fn spawn_paused_ui_system(mut commands: Commands, font_handles: Res<FontHandles>) {
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
-                position_type: PositionType::Absolute,
-                flex_direction: FlexDirection::ColumnReverse,
                 position: UiRect::new(Val::Px(0.0), Val::Px(0.0), Val::Undefined, Val::Undefined),
-                align_items: AlignItems::Center,
-                align_self: AlignSelf::Center,
-                ..default()
+                ..default_node_bundle_style()
             },
             color: COLOR_TRANSPARENT.into(),
             ..default()
@@ -39,45 +23,35 @@ pub fn spawn_paused_ui_system(mut commands: Commands, asset_server: Res<AssetSer
         .with_children(|parent| {
             // Continue button
             parent
-                .spawn_bundle(ButtonBundle {
-                    style: button_style.clone(),
-                    color: COLOR_BUTTON_DEFAULT.into(),
-                    ..default()
-                })
+                .spawn_bundle(default_button_bundle())
                 .insert(PausedScreenButtonAction::Continue)
                 .with_children(|parent| {
                     parent.spawn_bundle(TextBundle::from_section(
                         "Continue",
-                        button_text_style.clone(),
+                        default_small_button_text_style(font_handles.default.clone()),
                     ));
                 });
 
             // Main Menu button
             parent
-                .spawn_bundle(ButtonBundle {
-                    style: button_style.clone(),
-                    color: COLOR_BUTTON_DEFAULT.into(),
-                    ..default()
-                })
+                .spawn_bundle(default_button_bundle())
                 .insert(PausedScreenButtonAction::MainMenu)
                 .with_children(|parent| {
                     parent.spawn_bundle(TextBundle::from_section(
                         "Main Menu",
-                        button_text_style.clone(),
+                        default_small_button_text_style(font_handles.default.clone()),
                     ));
                 });
 
             // Quit button
             parent
-                .spawn_bundle(ButtonBundle {
-                    style: button_style.clone(),
-                    color: COLOR_BUTTON_DEFAULT.into(),
-                    ..default()
-                })
+                .spawn_bundle(default_button_bundle())
                 .insert(PausedScreenButtonAction::Quit)
                 .with_children(|parent| {
-                    parent
-                        .spawn_bundle(TextBundle::from_section("Quit", button_text_style.clone()));
+                    parent.spawn_bundle(TextBundle::from_section(
+                        "Quit",
+                        default_small_button_text_style(font_handles.default.clone()),
+                    ));
                 });
         });
 }

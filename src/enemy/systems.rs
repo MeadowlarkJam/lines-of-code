@@ -1,16 +1,15 @@
+use super::constants::ENEMY_SPEED;
 use super::spawners::{spawn_boomy, spawn_shieldy, spawn_zappy};
-use super::{Enemy, EnemyDied, EnemyRoot, EnemyType};
+use super::{Enemy, EnemyKilled, EnemyRoot, EnemySpawned, EnemyType};
+use crate::asset::SpriteHandles;
+use crate::audio::{AudioEvent, AudioType};
 use crate::components::{Bullet, Cannon, Projectile};
-use crate::consts::{ASSET_SPRITES_CANNON, PLAYER_SPEED};
-use crate::events::{Sound, SoundEvent};
 use crate::nodes::{spawn_cannon_node, spawn_zapper_node};
+use crate::object::Object;
 use crate::player::PlayerRoot;
 use crate::stats::Stats;
 use crate::{
-    components::{Object, Properties, Shield, Velocity, ZapEffect, Zapper},
-    consts::{
-        ASSET_SPRITES_DEBRIS, ASSET_SPRITES_FORCEFIELD, ASSET_SPRITES_SHIELD, ASSET_SPRITES_ZAPPER,
-    },
+    components::{Properties, Shield, Velocity, ZapEffect, Zapper},
     events::Hit,
     nodes::{spawn_empty_node, spawn_shield_node},
     player::Player,
@@ -21,20 +20,14 @@ use std::f32::consts::TAU;
 
 pub fn check_enemy_death_system(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    sprite_handles: Res<SpriteHandles>,
     mut query: Query<(&Properties, Entity, &EnemyRoot, &Transform), With<EnemyRoot>>,
-    mut event_writer: EventWriter<EnemyDied>,
+    mut enemy_killed_events: EventWriter<EnemyKilled>,
 ) {
     for (properties, entity, root, transform) in query.iter_mut() {
         if properties.health == 0 {
-            event_writer.send(EnemyDied);
+            enemy_killed_events.send(EnemyKilled);
 
-            let debris_handle = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
-            let shield_handle: Handle<Image> = asset_server.get_handle(ASSET_SPRITES_SHIELD);
-            let zapper_handle: Handle<Image> = asset_server.get_handle(ASSET_SPRITES_ZAPPER);
-            let forcefield_handle: Handle<Image> =
-                asset_server.get_handle(ASSET_SPRITES_FORCEFIELD);
-            let cannon_handle: Handle<Image> = asset_server.get_handle(ASSET_SPRITES_CANNON);
             match root.enemy_type {
                 EnemyType::Shieldy => {
                     // Drop a shield and 2 debris
@@ -42,8 +35,8 @@ pub fn check_enemy_death_system(
                         &mut commands,
                         transform.translation,
                         0.,
-                        shield_handle.clone(),
-                        forcefield_handle.clone(),
+                        sprite_handles.shield.clone(),
+                        sprite_handles.forcefield.clone(),
                         Shield {
                             health: 100,
                             cooldown: 3.,
@@ -66,7 +59,7 @@ pub fn check_enemy_death_system(
                             &mut commands,
                             transform.translation,
                             rand::random::<f32>() * TAU,
-                            debris_handle.clone(),
+                            sprite_handles.debris.clone(),
                         );
 
                         commands.entity(debris).insert(Object {}).insert(Velocity {
@@ -82,7 +75,7 @@ pub fn check_enemy_death_system(
                         &mut commands,
                         transform.translation,
                         0.,
-                        zapper_handle.clone(),
+                        sprite_handles.zapper.clone(),
                         Zapper {
                             damage: 10,
                             fire_rate: 1.,
@@ -106,7 +99,7 @@ pub fn check_enemy_death_system(
                             &mut commands,
                             transform.translation,
                             rand::random::<f32>() * TAU,
-                            debris_handle.clone(),
+                            sprite_handles.debris.clone(),
                         );
 
                         commands.entity(debris).insert(Object {}).insert(Velocity {
@@ -122,7 +115,7 @@ pub fn check_enemy_death_system(
                         &mut commands,
                         transform.translation,
                         0.,
-                        cannon_handle.clone(),
+                        sprite_handles.cannon.clone(),
                         Cannon {
                             damage: 10,
                             fire_rate: 1.,
@@ -146,7 +139,7 @@ pub fn check_enemy_death_system(
                             &mut commands,
                             transform.translation,
                             rand::random::<f32>() * TAU,
-                            debris_handle.clone(),
+                            sprite_handles.debris.clone(),
                         );
 
                         commands.entity(debris).insert(Object {}).insert(Velocity {
@@ -166,7 +159,7 @@ pub fn shoot_zappy_enemy_system(
     mut commands: Commands,
     time: Res<Time>,
     mut event_hit: EventWriter<Hit>,
-    mut event_sound: EventWriter<SoundEvent>,
+    mut event_audio: EventWriter<AudioEvent>,
 
     mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Enemy>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Player>>,
@@ -188,8 +181,8 @@ pub fn shoot_zappy_enemy_system(
                         target: shootable_parent.get(),
                         damage: zapper_stats.damage,
                     });
-                    event_sound.send(SoundEvent(Sound::Zap));
-                    event_sound.send(SoundEvent(Sound::Hit));
+                    event_audio.send(AudioEvent(AudioType::Laser));
+                    event_audio.send(AudioEvent(AudioType::Hit));
                     // Draw a yellow rectangle between the target and the zapper
                     let zapper_computed_transform = zapper_transform.compute_transform();
 
@@ -233,7 +226,7 @@ pub fn shoot_enemy_cannon_system(
     mut commands: Commands,
     time: Res<Time>,
     mut event_hit: EventWriter<Hit>,
-    mut event_sound: EventWriter<SoundEvent>,
+    mut event_audio: EventWriter<AudioEvent>,
     mut cannon_query: Query<(&GlobalTransform, &mut Cannon), With<Enemy>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Player>>,
 ) {
@@ -255,7 +248,7 @@ pub fn shoot_enemy_cannon_system(
                         target: shootable_parent.get(),
                         damage: cannon_stats.damage,
                     });
-                    event_sound.send(SoundEvent(Sound::CannonShot));
+                    event_audio.send(AudioEvent(AudioType::Explosion));
 
                     let velocity_x: f32 = (shootable_transform.compute_transform().translation.x
                         - cannon_transform.compute_transform().translation.x)
@@ -301,7 +294,7 @@ pub fn shoot_enemy_cannon_system(
 pub fn follow_player_in_range_system(
     player_query: Query<&Transform, With<PlayerRoot>>,
     mut enemy_query: Query<&mut Transform, (With<EnemyRoot>, Without<PlayerRoot>)>,
-    time: Res<Time>
+    time: Res<Time>,
 ) {
     for player_transform in player_query.iter() {
         for mut enemy_transform in enemy_query.iter_mut() {
@@ -311,7 +304,7 @@ pub fn follow_player_in_range_system(
             if distance < 200. && distance > 8. {
                 let direction =
                     (player_transform.translation - enemy_transform.translation).normalize();
-                enemy_transform.translation += direction * 0.6 * PLAYER_SPEED * time.delta_seconds();
+                enemy_transform.translation += direction * 0.6 * ENEMY_SPEED * time.delta_seconds();
             }
         }
     }
@@ -319,10 +312,11 @@ pub fn follow_player_in_range_system(
 
 pub fn spawn_random_enemies_system(
     commands: Commands,
-    mut stats: ResMut<Stats>,
+    stats: Res<Stats>,
     windows: Res<Windows>,
-    asset_server: Res<AssetServer>,
+    sprite_handles: Res<SpriteHandles>,
     player_query: Query<&Transform, With<PlayerRoot>>,
+    mut enemy_spawned_event: EventWriter<EnemySpawned>,
 ) {
     // 5 enemies at max
     if stats.enemies_alive < stats.kills + 1 {
@@ -362,27 +356,27 @@ pub fn spawn_random_enemies_system(
             };
 
         if stats.kills == 0 {
-            spawn_shieldy(commands, asset_server, position);
+            spawn_shieldy(commands, sprite_handles, position);
         } else {
             // Spawn a random enemy
             let enemy_type = rand::thread_rng().gen_range(0..3);
             match enemy_type {
-                0 => spawn_shieldy(commands, asset_server, position),
-                1 => spawn_boomy(commands, asset_server, position),
-                _ => spawn_zappy(commands, asset_server, position),
+                0 => spawn_shieldy(commands, sprite_handles, position),
+                1 => spawn_boomy(commands, sprite_handles, position),
+                _ => spawn_zappy(commands, sprite_handles, position),
             }
         }
 
-        stats.enemies_alive += 1;
+        enemy_spawned_event.send(EnemySpawned);
     }
 }
 
 // Clean enemies if the distance is too high
 pub fn clean_enemies_system(
     mut commands: Commands,
-    mut stats: ResMut<Stats>,
     player_query: Query<&Transform, With<PlayerRoot>>,
     enemy_query: Query<(&Transform, Entity), With<EnemyRoot>>,
+    mut enemy_killed_events: EventWriter<EnemyKilled>,
 ) {
     for player_transform in player_query.iter() {
         for (enemy_transform, enemy_entity) in enemy_query.iter() {
@@ -391,7 +385,7 @@ pub fn clean_enemies_system(
                 .distance(enemy_transform.translation);
             if distance > 3000. {
                 commands.entity(enemy_entity).despawn_recursive();
-                stats.enemies_alive -= 1;
+                enemy_killed_events.send(EnemyKilled);
             }
         }
     }

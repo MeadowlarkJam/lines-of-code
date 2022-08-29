@@ -1,4 +1,4 @@
-use crate::consts::{COLOR_BUTTON_CLICKED, COLOR_BUTTON_DEFAULT, COLOR_BUTTON_HOVERED};
+use crate::ui::constants::{COLOR_BUTTON_CLICKED, COLOR_BUTTON_DEFAULT, COLOR_BUTTON_HOVERED};
 use bevy::prelude::*;
 
 #[allow(clippy::type_complexity)]

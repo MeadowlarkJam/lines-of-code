@@ -1,20 +1,13 @@
 use super::{Enemy, EnemyRoot, EnemyType};
 use crate::{
+    asset::SpriteHandles,
     components::*,
-    consts::{
-        ASSET_SPRITES_CANNON, ASSET_SPRITES_DEBRIS, ASSET_SPRITES_FORCEFIELD, ASSET_SPRITES_SHIELD,
-        ASSET_SPRITES_ZAPPER,
-    },
     nodes::{spawn_cannon_node, spawn_empty_node, spawn_shield_node, spawn_zapper_node},
 };
 use bevy::prelude::*;
 
-pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, position: Vec3) {
-    let debris_handle = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
-    let shield_handle = asset_server.get_handle(ASSET_SPRITES_SHIELD);
-    let forcefield_handle = asset_server.get_handle(ASSET_SPRITES_FORCEFIELD);
-
-    let root = spawn_empty_node(&mut commands, position, 0., debris_handle.clone());
+pub fn spawn_shieldy(mut commands: Commands, sprite_handles: Res<SpriteHandles>, position: Vec3) {
+    let root = spawn_empty_node(&mut commands, position, 0., sprite_handles.debris.clone());
     commands
         .entity(root)
         .insert(Collider)
@@ -33,7 +26,7 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, pos
             &mut commands,
             Vec3::new(i as f32 * 8., 0., 0.),
             rand::random::<f32>() * 2. * std::f32::consts::PI,
-            debris_handle.clone(),
+            sprite_handles.debris.clone(),
         );
         commands
             .entity(element_right)
@@ -44,7 +37,7 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, pos
             &mut commands,
             Vec3::new(-i as f32 * 8., 0., 0.),
             rand::random::<f32>() * 2. * std::f32::consts::PI,
-            debris_handle.clone(),
+            sprite_handles.debris.clone(),
         );
         commands.entity(element_left).insert(Collider).insert(Enemy);
 
@@ -55,8 +48,8 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, pos
         &mut commands,
         Vec3::new(16., 8., 0.),
         rand::random::<f32>() * 2. * std::f32::consts::PI,
-        shield_handle.clone(),
-        forcefield_handle.clone(),
+        sprite_handles.shield.clone(),
+        sprite_handles.forcefield.clone(),
         Shield {
             health: 10,
             cooldown: 3.,
@@ -70,8 +63,8 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, pos
         &mut commands,
         Vec3::new(-16., -8., 0.),
         rand::random::<f32>() * 2. * std::f32::consts::PI,
-        shield_handle,
-        forcefield_handle,
+        sprite_handles.shield.clone(),
+        sprite_handles.forcefield.clone(),
         Shield {
             health: 10,
             cooldown: 3.,
@@ -84,11 +77,8 @@ pub fn spawn_shieldy(mut commands: Commands, asset_server: Res<AssetServer>, pos
     commands.entity(root).add_child(shield_left);
 }
 
-pub fn spawn_zappy(mut commands: Commands, asset_server: Res<AssetServer>, position: Vec3) {
-    let debris_handle = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
-    let zapper_handle = asset_server.get_handle(ASSET_SPRITES_ZAPPER);
-
-    let root = spawn_empty_node(&mut commands, position, 0., debris_handle.clone());
+pub fn spawn_zappy(mut commands: Commands, sprite_handles: Res<SpriteHandles>, position: Vec3) {
+    let root = spawn_empty_node(&mut commands, position, 0., sprite_handles.debris.clone());
 
     commands
         .entity(root)
@@ -109,7 +99,7 @@ pub fn spawn_zappy(mut commands: Commands, asset_server: Res<AssetServer>, posit
                     &mut commands,
                     Vec3::new(0., j as f32 * 8., 0.),
                     0.,
-                    zapper_handle.clone(),
+                    sprite_handles.zapper.clone(),
                     Zapper {
                         damage: 5,
                         fire_rate: 1.,
@@ -124,7 +114,7 @@ pub fn spawn_zappy(mut commands: Commands, asset_server: Res<AssetServer>, posit
                     &mut commands,
                     Vec3::new(i as f32 * 8., j as f32 * 8., 0.),
                     rand::random::<f32>() * 2. * std::f32::consts::PI,
-                    debris_handle.clone(),
+                    sprite_handles.debris.clone(),
                 );
 
                 commands.entity(element).insert(Collider).insert(Enemy);
@@ -135,11 +125,8 @@ pub fn spawn_zappy(mut commands: Commands, asset_server: Res<AssetServer>, posit
     }
 }
 
-pub fn spawn_boomy(mut commands: Commands, asset_server: Res<AssetServer>, position: Vec3) {
-    let debris_handle = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
-    let cannon_handle = asset_server.get_handle(ASSET_SPRITES_CANNON);
-
-    let root = spawn_empty_node(&mut commands, position, 0., debris_handle.clone());
+pub fn spawn_boomy(mut commands: Commands, sprite_handles: Res<SpriteHandles>, position: Vec3) {
+    let root = spawn_empty_node(&mut commands, position, 0., sprite_handles.debris.clone());
 
     commands
         .entity(root)
@@ -160,7 +147,7 @@ pub fn spawn_boomy(mut commands: Commands, asset_server: Res<AssetServer>, posit
                     &mut commands,
                     Vec3::new(0., 0., 0.),
                     0.,
-                    cannon_handle.clone(),
+                    sprite_handles.cannon.clone(),
                     Cannon {
                         damage: 10,
                         fire_rate: 1.,
@@ -175,7 +162,7 @@ pub fn spawn_boomy(mut commands: Commands, asset_server: Res<AssetServer>, posit
                     &mut commands,
                     Vec3::new(i as f32 * 8., j as f32 * 8., 0.),
                     rand::random::<f32>() * 2. * std::f32::consts::PI,
-                    debris_handle.clone(),
+                    sprite_handles.debris.clone(),
                 );
 
                 commands.entity(element).insert(Collider).insert(Enemy);

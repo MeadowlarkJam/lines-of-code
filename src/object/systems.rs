@@ -1,10 +1,10 @@
+use super::Object;
 use crate::{
-    components::{
-        Bullet, Cannon, Collider, Object, Projectile, Properties, Shield, Velocity, Zapper,
-    },
-    consts::{ASSET_SPRITES_CANNON, ASSET_SPRITES_DEBRIS, ASSET_SPRITES_ZAPPER},
+    asset::SpriteHandles,
+    audio::{AudioEvent, AudioType},
+    components::{Bullet, Cannon, Collider, Projectile, Properties, Shield, Velocity, Zapper},
     enemy::Enemy,
-    events::{Hit, Sound, SoundEvent},
+    events::Hit,
     nodes::{spawn_cannon_node, spawn_empty_node, spawn_zapper_node},
     player::{Player, PlayerRoot},
 };
@@ -86,10 +86,8 @@ pub fn _clean_objects_system(
     }
 }
 
-pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn spawn_start_objects_system(mut commands: Commands, sprite_handles: Res<SpriteHandles>) {
     // Place two zappers
-    let zapper_handle = asset_server.get_handle(ASSET_SPRITES_ZAPPER);
-
     let starter_zapper = spawn_zapper_node(
         &mut commands,
         Vec3::new(
@@ -98,7 +96,7 @@ pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<Asse
             0.,
         ),
         0.,
-        zapper_handle.clone(),
+        sprite_handles.zapper.clone(),
         Zapper {
             damage: 10,
             fire_rate: 1.,
@@ -117,7 +115,7 @@ pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<Asse
             0.,
         ),
         0.,
-        zapper_handle,
+        sprite_handles.zapper.clone(),
         Zapper {
             damage: 10,
             fire_rate: 1.,
@@ -136,7 +134,7 @@ pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<Asse
             0.,
         ),
         0.,
-        asset_server.get_handle(ASSET_SPRITES_CANNON),
+        sprite_handles.cannon.clone(),
         Cannon {
             damage: 10,
             fire_rate: 1.,
@@ -147,8 +145,6 @@ pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<Asse
     commands.entity(starter_cannon).insert(Object);
 
     // Some uniformly distributed debris around the player
-    let debris_handle: Handle<Image> = asset_server.get_handle(ASSET_SPRITES_DEBRIS);
-
     for _ in 0..5 {
         // Spawn a node with debris
         let debris = spawn_empty_node(
@@ -159,7 +155,7 @@ pub fn spawn_start_objects_system(mut commands: Commands, asset_server: Res<Asse
                 0.,
             ),
             rand::random::<f32>() * TAU,
-            debris_handle.clone(),
+            sprite_handles.debris.clone(),
         );
 
         commands.entity(debris).insert(Object).insert(Velocity {
@@ -189,7 +185,7 @@ pub fn move_projectile(mut query: Query<(&mut Transform, &Velocity), With<Projec
 pub fn bullet_collision(
     mut commands: Commands,
     mut event_hit: EventWriter<Hit>,
-    mut event_sound: EventWriter<SoundEvent>,
+    mut event_audio: EventWriter<AudioEvent>,
     hittable_query: Query<
         (Entity, &GlobalTransform, Option<&Enemy>),
         Or<(With<Enemy>, With<Player>)>,
@@ -250,7 +246,7 @@ pub fn bullet_collision(
                     target: hittable_entity,
                     damage: bullet_stats.damage,
                 });
-                event_sound.send(SoundEvent(Sound::Hit));
+                event_audio.send(AudioEvent(AudioType::Hit));
                 commands.entity(bullet_entity).despawn();
                 return;
             }

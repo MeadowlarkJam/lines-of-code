@@ -1,4 +1,8 @@
+mod components;
 mod plugin;
 mod systems;
 
-pub use self::plugin::{ObjectPlugin, ObjectSystem};
+pub use self::{
+    components::*,
+    plugin::{ObjectPlugin, ObjectSystem},
+};

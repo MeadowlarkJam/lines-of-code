@@ -1,20 +1,18 @@
-use super::{Player, PlayerRoot, PlayerSizeIncreased};
+use super::{constants::PLAYER_SPEED, Player, PlayerRoot, PlayerSizeIncreased};
 use crate::{
+    asset::SpriteHandles,
+    audio::{AudioEvent, AudioType},
     camera::MainCamera,
-    components::{
-        Bullet, Cannon, Collider, Object, Projectile, Properties, Velocity, ZapEffect, Zapper,
-    },
-    consts::{ASSET_SPRITES_PLAYER, PLAYER_SPEED},
+    components::{Bullet, Cannon, Collider, Projectile, Properties, Velocity, ZapEffect, Zapper},
     enemy::{Enemy, EnemyRoot},
-    events::{Hit, Sound, SoundEvent},
+    events::Hit,
+    object::Object,
     schedule::GameState,
     starfield::{CustomMaterial, Starfield},
 };
 use bevy::{prelude::*, render::camera::RenderTarget};
 
-pub fn spawn_player_system(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let player_handle = asset_server.get_handle(ASSET_SPRITES_PLAYER);
-
+pub fn spawn_player_system(mut commands: Commands, sprite_handles: Res<SpriteHandles>) {
     // Create a player that is on top of the root. This makes sure that we only need to attach to other non-root blocks and can query for the root-transform later on
     let player_root_entity = commands
         .spawn()
@@ -25,7 +23,7 @@ pub fn spawn_player_system(mut commands: Commands, asset_server: Res<AssetServer
                 translation: Vec3::new(0.0, 0.0, 0.0),
                 ..default()
             },
-            texture: player_handle.clone(),
+            texture: sprite_handles.player.clone(),
             ..default()
         })
         .id();
@@ -45,7 +43,7 @@ pub fn spawn_player_system(mut commands: Commands, asset_server: Res<AssetServer
                 translation: Vec3::new(0.0, 0.0, 1.0),
                 ..default()
             },
-            texture: player_handle,
+            texture: sprite_handles.player.clone(),
             ..default()
         })
         .add_child(player_root_entity);
@@ -59,7 +57,7 @@ pub fn move_player_system(
     mut query: Query<&mut Transform, With<PlayerRoot>>,
     mut starfield: Query<(&mut Starfield, &mut Transform), Without<PlayerRoot>>,
     mut materials: ResMut<Assets<CustomMaterial>>,
-    time: Res<Time>
+    time: Res<Time>,
 ) {
     // The player's movement directions
     let mut movement_x = 0.;
@@ -85,6 +83,7 @@ pub fn move_player_system(
     player_transform.translation.x += movement_x * PLAYER_SPEED * time.delta_seconds();
     player_transform.translation.y += movement_y * PLAYER_SPEED * time.delta_seconds();
 
+    // Move the starfield to the player position
     let (sf, mut tf) = starfield.single_mut();
     tf.translation.x = player_transform.translation.x;
     tf.translation.y = player_transform.translation.y;
@@ -134,7 +133,7 @@ pub fn shoot_player_zapper_system(
     mut commands: Commands,
     time: Res<Time>,
     mut event_hit: EventWriter<Hit>,
-    mut event_sound: EventWriter<SoundEvent>,
+    mut event_audio: EventWriter<AudioEvent>,
     mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Player>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Enemy>>,
 ) {
@@ -155,8 +154,8 @@ pub fn shoot_player_zapper_system(
                         target: shootable_parent.get(),
                         damage: zapper_stats.damage,
                     });
-                    event_sound.send(SoundEvent(Sound::Zap));
-                    event_sound.send(SoundEvent(Sound::Hit));
+                    event_audio.send(AudioEvent(AudioType::Laser));
+                    event_audio.send(AudioEvent(AudioType::Hit));
 
                     // Draw a yellow rectangle between the target and the zapper
                     let zapper_computed_transform = zapper_transform.compute_transform();
@@ -201,7 +200,7 @@ pub fn shoot_player_cannon_system(
     mut commands: Commands,
     time: Res<Time>,
     mut event_hit: EventWriter<Hit>,
-    mut event_sound: EventWriter<SoundEvent>,
+    mut event_audio: EventWriter<AudioEvent>,
     mut cannon_query: Query<(&GlobalTransform, &mut Cannon), With<Player>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Enemy>>,
 ) {
@@ -224,7 +223,7 @@ pub fn shoot_player_cannon_system(
                         damage: cannon_stats.damage,
                     });
 
-                    event_sound.send(SoundEvent(Sound::CannonShot));
+                    event_audio.send(AudioEvent(AudioType::Explosion));
 
                     let velocity_x: f32 = (shootable_transform.compute_transform().translation.x
                         - cannon_transform.compute_transform().translation.x)
@@ -292,12 +291,10 @@ pub fn remove_zap_effect_system(mut commands: Commands, query: Query<Entity, Wit
 pub fn check_player_death_system(
     mut query: Query<&Properties, With<PlayerRoot>>,
     mut game_state: ResMut<State<GameState>>,
-    mut event_sound: EventWriter<SoundEvent>,
 ) {
     for properties in query.iter_mut() {
         if properties.health == 0 {
             game_state.set(GameState::EndScreen).unwrap();
-            event_sound.send(SoundEvent(Sound::Death));
         }
     }
 }

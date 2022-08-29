@@ -1,9 +1,12 @@
-use super::systems::{
-    bullet_collision, clean_bullets, forcefield_cooldown_system, move_objects_system,
-    move_projectile, spawn_start_objects_system, velocity_dropoff_system,
+use super::{
+    systems::{
+        bullet_collision, clean_bullets, forcefield_cooldown_system, move_objects_system,
+        move_projectile, spawn_start_objects_system, velocity_dropoff_system,
+    },
+    Object,
 };
 use crate::{
-    components::{Object, Projectile, ZapEffect},
+    components::{Projectile, ZapEffect},
     despawn_recursive::despawn_entities_recursive_system,
     player::PlayerSystem,
     schedule::GameState,
