@@ -1,5 +1,5 @@
 // Fonts
-pub const ASSET_FONTS_DEFAULT: &str = "fonts/FiraMono-Medium.ttf";
+pub const ASSET_FONTS_DEFAULT: &str = "fonts/minimal5x7.ttf";
 
 // Sprites
 pub const ASSET_SPRITES_ZAPPER: &str = "sprites/zapper.png";
