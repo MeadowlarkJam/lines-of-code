@@ -103,7 +103,7 @@ pub fn spawn_zappy(mut commands: Commands, sprite_handles: Res<SpriteHandles>, p
                     0.,
                     sprite_handles.zapper.clone(),
                     Zapper {
-                        damage: 5,
+                        damage: 10,
                         fire_rate: 1.,
                         cooldown_timer: 0.,
                         range: 100.,
