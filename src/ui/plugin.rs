@@ -1,12 +1,12 @@
 use super::{
     components::{OnDeathScreen, OnIngameScreen, OnMainMenuScreen, OnPausedScreen, OnSplashScreen},
     systems::{
-        button_highlight_system, end_screen_button_interaction_system, end_screen_death_sound,
+        button_highlight_system, end_screen_button_interaction_system,
         main_menu_button_interaction_system, paused_button_interaction_system,
         spawn_end_screen_ui_system, spawn_ingame_ui_system, spawn_main_menu_ui_system,
-        spawn_paused_ui_system, spawn_splash_screen_system, start_music,
-        update_splash_screen_system, update_ui_enemies_alive_system, update_ui_kills_system,
-        update_ui_player_stats_system, update_ui_score_system,
+        spawn_paused_ui_system, spawn_splash_screen_system, update_splash_screen_system,
+        update_ui_enemies_alive_system, update_ui_kills_system, update_ui_player_stats_system,
+        update_ui_score_system,
     },
 };
 use crate::{despawn_recursive::despawn_entities_recursive_system, schedule::GameState};
@@ -25,8 +25,7 @@ impl Plugin for UiPlugin {
             .add_system_set(
                 SystemSet::on_enter(GameState::SplashScreen)
                     .label(UiSystem)
-                    .with_system(spawn_splash_screen_system)
-                    .with_system(start_music),
+                    .with_system(spawn_splash_screen_system),
             )
             .add_system_set(
                 SystemSet::on_update(GameState::SplashScreen)
@@ -93,8 +92,7 @@ impl Plugin for UiPlugin {
             .add_system_set(
                 SystemSet::on_enter(GameState::EndScreen)
                     .label(UiSystem)
-                    .with_system(spawn_end_screen_ui_system)
-                    .with_system(end_screen_death_sound),
+                    .with_system(spawn_end_screen_ui_system),
             )
             .add_system_set(
                 SystemSet::on_update(GameState::EndScreen)

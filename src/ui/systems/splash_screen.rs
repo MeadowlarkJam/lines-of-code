@@ -1,30 +1,26 @@
 use crate::{
-    consts::{ASSET_AUDIO_BG_SONG, ASSET_FONTS_DEFAULT, COLOR_ACCENT},
+    asset::FontHandles,
     schedule::GameState,
-    ui::components::{OnSplashScreen, SplashScreenTimer},
+    ui::{
+        components::{OnSplashScreen, SplashScreenTimer},
+        helper::accent_large_button_text_style,
+    },
 };
 use bevy::prelude::*;
 
-pub fn spawn_splash_screen_system(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn spawn_splash_screen_system(mut commands: Commands, font_handles: Res<FontHandles>) {
     commands
         .spawn_bundle(
             TextBundle::from_section(
                 "Escape Pod",
-                TextStyle {
-                    font: asset_server.get_handle(ASSET_FONTS_DEFAULT),
-                    font_size: 140.0,
-                    color: COLOR_ACCENT,
-                },
+                accent_large_button_text_style(font_handles.default.clone()),
             )
             .with_style(Style {
                 align_self: AlignSelf::Center,
                 margin: UiRect::all(Val::Auto),
                 ..default()
             })
-            .with_text_alignment(TextAlignment {
-                vertical: VerticalAlign::Center,
-                horizontal: HorizontalAlign::Center,
-            }),
+            .with_text_alignment(TextAlignment::CENTER),
         )
         .insert(OnSplashScreen);
 
@@ -53,11 +49,4 @@ pub fn update_splash_screen_system(
             section.style.color.set_a(alpha);
         }
     }
-}
-
-pub fn start_music(audio: Res<Audio>, asset_server: Res<AssetServer>) {
-    audio.play_with_settings(
-        asset_server.load(ASSET_AUDIO_BG_SONG),
-        PlaybackSettings::LOOP.with_volume(0.2),
-    );
 }

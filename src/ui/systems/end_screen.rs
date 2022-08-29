@@ -1,44 +1,28 @@
 use crate::{
-    consts::{
-        ASSET_AUDIO_DEATH, ASSET_FONTS_DEFAULT, COLOR_ACCENT, COLOR_BUTTON_DEFAULT,
-        COLOR_FOREGROUND, COLOR_TRANSPARENT,
-    },
+    asset::FontHandles,
     schedule::GameState,
     stats::Stats,
-    ui::components::{EndScreenButtonAction, OnDeathScreen},
+    ui::{
+        components::{EndScreenButtonAction, OnDeathScreen},
+        constants::COLOR_TRANSPARENT,
+        helper::{
+            accent_large_button_text_style, accent_medium_button_text_style, default_button_bundle,
+            default_node_bundle_style, default_small_button_text_style,
+        },
+    },
 };
 use bevy::{app::AppExit, prelude::*};
 
 pub fn spawn_end_screen_ui_system(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     stats: Res<Stats>,
+    font_handles: Res<FontHandles>,
 ) {
-    let font = asset_server.get_handle(ASSET_FONTS_DEFAULT);
-
-    let button_style = Style {
-        size: Size::new(Val::Percent(40.), Val::Percent(20.)),
-        margin: UiRect::all(Val::Px(10.0)),
-        justify_content: JustifyContent::Center,
-        align_items: AlignItems::Center,
-        ..default()
-    };
-
-    let button_text_style = TextStyle {
-        font,
-        font_size: 60.,
-        color: COLOR_FOREGROUND,
-    };
-
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
-                position_type: PositionType::Absolute,
-                flex_direction: FlexDirection::ColumnReverse,
                 position: UiRect::new(Val::Px(0.0), Val::Px(0.0), Val::Undefined, Val::Undefined),
-                align_items: AlignItems::Center,
-                align_self: AlignSelf::Center,
-                ..default()
+                ..default_node_bundle_style()
             },
             color: COLOR_TRANSPARENT.into(),
             ..default()
@@ -48,11 +32,7 @@ pub fn spawn_end_screen_ui_system(
             parent.spawn_bundle(
                 TextBundle::from_section(
                     "You died!",
-                    TextStyle {
-                        font: asset_server.get_handle(ASSET_FONTS_DEFAULT),
-                        font_size: 120.0,
-                        color: COLOR_ACCENT,
-                    },
+                    accent_large_button_text_style(font_handles.default.clone()),
                 )
                 .with_style(Style {
                     align_self: AlignSelf::Center,
@@ -64,40 +44,25 @@ pub fn spawn_end_screen_ui_system(
                     ),
                     ..default()
                 })
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::CENTER),
             );
 
             parent.spawn_bundle(
                 TextBundle::from_section(
                     format!("Score: {}", stats.score),
-                    TextStyle {
-                        font: asset_server.get_handle(ASSET_FONTS_DEFAULT),
-                        font_size: 100.0,
-                        color: COLOR_ACCENT,
-                    },
+                    accent_medium_button_text_style(font_handles.default.clone()),
                 )
                 .with_style(Style {
                     align_self: AlignSelf::Center,
-                    margin: UiRect::all(Val::Undefined),
                     ..default()
                 })
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::CENTER),
             );
 
             parent.spawn_bundle(
                 TextBundle::from_section(
                     format!("Kills: {}", stats.kills),
-                    TextStyle {
-                        font: asset_server.get_handle(ASSET_FONTS_DEFAULT),
-                        font_size: 100.0,
-                        color: COLOR_ACCENT,
-                    },
+                    accent_medium_button_text_style(font_handles.default.clone()),
                 )
                 .with_style(Style {
                     align_self: AlignSelf::Center,
@@ -109,51 +74,40 @@ pub fn spawn_end_screen_ui_system(
                     ),
                     ..default()
                 })
-                .with_text_alignment(TextAlignment {
-                    vertical: VerticalAlign::Center,
-                    horizontal: HorizontalAlign::Center,
-                }),
+                .with_text_alignment(TextAlignment::CENTER),
             );
 
+            // Restart button
             parent
-                .spawn_bundle(ButtonBundle {
-                    style: button_style.clone(),
-                    color: COLOR_BUTTON_DEFAULT.into(),
-                    ..default()
-                })
+                .spawn_bundle(default_button_bundle())
                 .insert(EndScreenButtonAction::Restart)
                 .with_children(|parent| {
                     parent.spawn_bundle(TextBundle::from_section(
                         "Restart",
-                        button_text_style.clone(),
+                        default_small_button_text_style(font_handles.default.clone()),
                     ));
                 });
 
+            // Main Menu button
             parent
-                .spawn_bundle(ButtonBundle {
-                    style: button_style.clone(),
-                    color: COLOR_BUTTON_DEFAULT.into(),
-                    ..default()
-                })
+                .spawn_bundle(default_button_bundle())
                 .insert(EndScreenButtonAction::MainMenu)
                 .with_children(|parent| {
                     parent.spawn_bundle(TextBundle::from_section(
                         "Main Menu",
-                        button_text_style.clone(),
+                        default_small_button_text_style(font_handles.default.clone()),
                     ));
                 });
 
             // Quit button
             parent
-                .spawn_bundle(ButtonBundle {
-                    style: button_style.clone(),
-                    color: COLOR_BUTTON_DEFAULT.into(),
-                    ..default()
-                })
+                .spawn_bundle(default_button_bundle())
                 .insert(EndScreenButtonAction::Quit)
                 .with_children(|parent| {
-                    parent
-                        .spawn_bundle(TextBundle::from_section("Quit", button_text_style.clone()));
+                    parent.spawn_bundle(TextBundle::from_section(
+                        "Quit",
+                        default_small_button_text_style(font_handles.default.clone()),
+                    ));
                 });
         });
 }
@@ -173,11 +127,4 @@ pub fn end_screen_button_interaction_system(
             }
         }
     }
-}
-
-pub fn end_screen_death_sound(audio: Res<Audio>, asset_server: Res<AssetServer>) {
-    audio.play_with_settings(
-        asset_server.load::<AudioSource, &str>(ASSET_AUDIO_DEATH),
-        PlaybackSettings::ONCE.with_volume(0.1),
-    );
 }

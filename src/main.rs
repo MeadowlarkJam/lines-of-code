@@ -1,22 +1,19 @@
-use asset::SoundHandles;
-use bevy::{
-    diagnostic::EntityCountDiagnosticsPlugin, prelude::*, render::texture::ImageSettings,
-    sprite::Material2dPlugin,
-};
-//use bevy_editor_pls::prelude::*;
+use bevy::{prelude::*, render::texture::ImageSettings, sprite::Material2dPlugin};
+
+// Diagnostic imports
+// use bevy::diagnostic::EntityCountDiagnosticsPlugin;
+// use bevy_editor_pls::prelude::*;
 
 mod components;
-mod consts;
 mod despawn_recursive;
 mod events;
 mod nodes;
-use consts::COLOR_BACKGROUND_DARK;
 use events::*;
 use starfield::CustomMaterial;
-use stats::Stats;
 
 // Plugins
 mod asset;
+mod audio;
 mod camera;
 mod enemy;
 mod object;
@@ -25,25 +22,19 @@ mod schedule;
 mod starfield;
 mod stats;
 mod ui;
+mod window;
 
 #[allow(clippy::type_complexity)]
 fn main() {
     App::new()
         // ----- Bevy -----
         .add_event::<Hit>()
-        .add_event::<SoundEvent>()
         .insert_resource(ImageSettings::default_nearest())
-        .insert_resource(ClearColor(COLOR_BACKGROUND_DARK))
-        .insert_resource(Stats::default())
-        .insert_resource(SoundHandles::default())
-        .insert_resource(WindowDescriptor {
-            title: String::from("Escape Pod"),
-            ..default()
-        })
+        // ----- Plugins -----
+        .add_plugin(window::WindowPlugin) // Has to be before the `DefaultPlugins`
         .add_plugins(DefaultPlugins)
-        .add_plugin(EntityCountDiagnosticsPlugin)
-        // ----- Game -----
         .add_plugin(asset::AssetPlugin)
+        .add_plugin(audio::AudioPlugin)
         .add_plugin(Material2dPlugin::<CustomMaterial>::default())
         .add_plugin(camera::CameraPlugin)
         .add_plugin(enemy::EnemyPlugin)
@@ -53,8 +44,9 @@ fn main() {
         .add_plugin(starfield::StarfieldPlugin)
         .add_plugin(stats::StatsPlugin)
         .add_plugin(ui::UiPlugin)
-        // ----- Third party -----
-        //.add_plugin(EditorPlugin)
+        // ----- Diagnostics -----
+        // .add_plugin(EditorPlugin)
+        // .add_plugin(EntityCountDiagnosticsPlugin)
         // ----- Start -----
         .run();
 }

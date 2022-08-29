@@ -1,31 +1,20 @@
 use crate::{
+    asset::FontHandles,
     components::Properties,
-    consts::{ASSET_FONTS_DEFAULT, COLOR_BACKGROUND_DARK, COLOR_FOREGROUND},
     player::PlayerRoot,
     stats::Stats,
     ui::components::{OnIngameScreen, UiEnemiesAlive, UiHealth, UiKills, UiScore, UiSize},
+    ui::{
+        constants::COLOR_TRANSPARENT,
+        helper::{default_node_bundle_style, default_small_button_text_style},
+    },
 };
 use bevy::prelude::*;
 
-pub fn spawn_ingame_ui_system(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font = asset_server.get_handle(ASSET_FONTS_DEFAULT);
-
-    let text_style = TextStyle {
-        font,
-        font_size: 60.0,
-        color: COLOR_FOREGROUND,
-    };
-
+pub fn spawn_ingame_ui_system(mut commands: Commands, font_handles: Res<FontHandles>) {
+    let text_style = default_small_button_text_style(font_handles.default.clone());
     let style = Style {
-        margin: UiRect::new(Val::Px(25.0), Val::Px(25.0), Val::Px(10.0), Val::Px(10.0)),
-        align_self: AlignSelf::FlexStart,
-        ..default()
-    };
-
-    let node_style = Style {
-        position_type: PositionType::Absolute,
-        flex_direction: FlexDirection::ColumnReverse,
-        align_items: AlignItems::Center,
+        margin: UiRect::new(Val::Px(25.0), Val::Px(25.0), Val::Px(5.0), Val::Px(5.0)),
         align_self: AlignSelf::FlexStart,
         ..default()
     };
@@ -34,9 +23,10 @@ pub fn spawn_ingame_ui_system(mut commands: Commands, asset_server: Res<AssetSer
         .spawn_bundle(NodeBundle {
             style: Style {
                 position: UiRect::new(Val::Px(25.0), Val::Undefined, Val::Px(25.0), Val::Undefined),
-                ..node_style
+                align_self: AlignSelf::FlexStart,
+                ..default_node_bundle_style()
             },
-            color: COLOR_BACKGROUND_DARK.into(),
+            color: COLOR_TRANSPARENT.into(),
             ..default()
         })
         .insert(OnIngameScreen)
@@ -79,9 +69,9 @@ pub fn spawn_ingame_ui_system(mut commands: Commands, asset_server: Res<AssetSer
         .spawn_bundle(NodeBundle {
             style: Style {
                 position: UiRect::new(Val::Px(25.0), Val::Undefined, Val::Undefined, Val::Px(25.0)),
-                ..node_style
+                ..default_node_bundle_style()
             },
-            color: COLOR_BACKGROUND_DARK.into(),
+            color: COLOR_TRANSPARENT.into(),
             ..default()
         })
         .insert(OnIngameScreen)

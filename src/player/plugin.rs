@@ -37,7 +37,7 @@ impl Plugin for PlayerPlugin {
                     .with_system(
                         check_hits_system
                             .after(shoot_player_zapper_system)
-                            .after(shoot_player_zapper_system),
+                            .after(shoot_player_cannon_system),
                     )
                     .with_system(check_player_death_system.after(check_hits_system)),
             )

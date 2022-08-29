@@ -29,7 +29,7 @@ pub fn check_for_unpaused_system(
 // event that gets read during the `on_update` of `GameState::InGame` which in turn moves us
 // to the `GameState::MainMenu`. This way we get reliable exits of the `GameState::InGame`
 // which means the cleanup system run exactly when we think they would.
-pub fn check_for_events_system(
+pub fn check_for_state_events_system(
     event_reader: EventReader<GotoMainMenu>,
     mut game_state: ResMut<State<GameState>>,
 ) {

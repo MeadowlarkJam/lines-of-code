@@ -1,10 +1,9 @@
+use super::Starfield;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 use bevy::render::render_resource::{AsBindGroup, ShaderRef};
 use bevy::sprite::Material2d;
 use bevy::{prelude::Transform, sprite::MaterialMesh2dBundle};
-
-use super::Starfield;
 
 pub fn spawn_starfield_system(
     mut commands: Commands,

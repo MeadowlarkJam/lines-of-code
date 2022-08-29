@@ -1,6 +1,7 @@
 use super::{
     resources::StatsTimer,
     systems::{reset_stats_system, update_stats_system},
+    Stats,
 };
 use crate::schedule::GameState;
 use bevy::prelude::*;
@@ -12,7 +13,8 @@ pub struct StatsPlugin;
 
 impl Plugin for StatsPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(StatsTimer(Timer::from_seconds(3.0, true)))
+        app.insert_resource(Stats::default())
+            .insert_resource(StatsTimer(Timer::from_seconds(3.0, true)))
             .add_system_set(
                 SystemSet::on_update(GameState::InGame)
                     .label(StatsSystem)

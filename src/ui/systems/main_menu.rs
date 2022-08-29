@@ -1,61 +1,44 @@
 use crate::{
-    consts::{
-        ASSET_FONTS_DEFAULT, COLOR_ACCENT, COLOR_BUTTON_DEFAULT, COLOR_FOREGROUND,
-        COLOR_TRANSPARENT,
-    },
+    asset::FontHandles,
     schedule::GameState,
-    ui::components::{MainMenuButtonAction, OnMainMenuScreen},
+    ui::{
+        components::{MainMenuButtonAction, OnMainMenuScreen},
+        helper::{
+            accent_large_button_text_style, default_button_bundle, default_small_button_text_style,
+        },
+    },
+    ui::{constants::COLOR_TRANSPARENT, helper::default_node_bundle_style},
 };
 use bevy::{app::AppExit, prelude::*};
 
-pub fn spawn_main_menu_ui_system(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font = asset_server.get_handle(ASSET_FONTS_DEFAULT);
-
-    let button_style = Style {
-        size: Size::new(Val::Percent(40.), Val::Percent(30.)),
-        margin: UiRect::all(Val::Px(10.0)),
-        justify_content: JustifyContent::Center,
-        align_items: AlignItems::Center,
-        ..default()
-    };
-
-    let button_text_style = TextStyle {
-        font,
-        font_size: 80.0,
-        color: COLOR_FOREGROUND,
-    };
-
+pub fn spawn_main_menu_ui_system(mut commands: Commands, font_handles: Res<FontHandles>) {
     commands
         .spawn_bundle(
             TextBundle::from_section(
                 "Escape Pod",
-                TextStyle {
-                    font: asset_server.get_handle(ASSET_FONTS_DEFAULT),
-                    font_size: 140.0,
-                    color: COLOR_ACCENT,
-                },
+                accent_large_button_text_style(font_handles.default.clone()),
             )
             .with_style(Style {
                 align_self: AlignSelf::Center,
                 margin: UiRect::all(Val::Auto),
                 ..default()
             })
-            .with_text_alignment(TextAlignment {
-                vertical: VerticalAlign::Center,
-                horizontal: HorizontalAlign::Center,
-            }),
+            .with_text_alignment(TextAlignment::CENTER),
         )
         .insert(OnMainMenuScreen);
 
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
-                position_type: PositionType::Absolute,
-                flex_direction: FlexDirection::ColumnReverse,
-                align_items: AlignItems::Center,
-                align_self: AlignSelf::FlexStart,
-                size: Size::new(Val::Percent(100.0), Val::Percent(40.0)),
-                ..default()
+                align_self: AlignSelf::Center,
+                position: UiRect::new(
+                    Val::Undefined,
+                    Val::Undefined,
+                    Val::Percent(60.0),
+                    Val::Undefined,
+                ),
+                size: Size::new(Val::Percent(100.0), Val::Undefined),
+                ..default_node_bundle_style()
             },
             color: COLOR_TRANSPARENT.into(),
             ..default()
@@ -64,28 +47,24 @@ pub fn spawn_main_menu_ui_system(mut commands: Commands, asset_server: Res<Asset
         .with_children(|parent| {
             // Play button
             parent
-                .spawn_bundle(ButtonBundle {
-                    style: button_style.clone(),
-                    color: COLOR_BUTTON_DEFAULT.into(),
-                    ..default()
-                })
+                .spawn_bundle(default_button_bundle())
                 .insert(MainMenuButtonAction::Play)
                 .with_children(|parent| {
-                    parent
-                        .spawn_bundle(TextBundle::from_section("Play", button_text_style.clone()));
+                    parent.spawn_bundle(TextBundle::from_section(
+                        "Play",
+                        default_small_button_text_style(font_handles.default.clone()),
+                    ));
                 });
 
             // Quit button
             parent
-                .spawn_bundle(ButtonBundle {
-                    style: button_style.clone(),
-                    color: COLOR_BUTTON_DEFAULT.into(),
-                    ..default()
-                })
+                .spawn_bundle(default_button_bundle())
                 .insert(MainMenuButtonAction::Quit)
                 .with_children(|parent| {
-                    parent
-                        .spawn_bundle(TextBundle::from_section("Quit", button_text_style.clone()));
+                    parent.spawn_bundle(TextBundle::from_section(
+                        "Quit",
+                        default_small_button_text_style(font_handles.default.clone()),
+                    ));
                 });
         });
 }
