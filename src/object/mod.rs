@@ -4,6 +4,6 @@ pub(crate) mod systems;
 
 pub use self::{
     components::*,
-    systems::move_objects_system,
     plugin::{ObjectPlugin, ObjectSystem},
+    systems::move_objects_system,
 };
