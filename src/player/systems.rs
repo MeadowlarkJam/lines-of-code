@@ -5,7 +5,7 @@ use crate::{
     asset::SpriteHandles,
     audio::{AudioEvent, AudioType},
     camera::MainCamera,
-    components::{Bullet, Cannon, Collider, Projectile, Properties, Velocity, ZapEffect, Zapper},
+    components::{Bullet, Cannon, Collider, Projectile, Properties, Velocity, ZapEffect, Zapper, ShieldForcefield},
     enemy::{Enemy, EnemyRoot},
     events::Hit,
     object::Object,
@@ -137,7 +137,7 @@ pub fn shoot_player_zapper_system(
     mut event_hit: EventWriter<Hit>,
     mut event_audio: EventWriter<AudioEvent>,
     mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Player>>,
-    shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Enemy>>,
+    shootable_query: Query<(&GlobalTransform, Entity, &Parent), (With<Enemy>, Without<ShieldForcefield>)>,
 ) {
     for (zapper_transform, mut zapper_stats) in zapper_query.iter_mut() {
         if zapper_stats.cooldown_timer > 0. {
@@ -204,7 +204,7 @@ pub fn shoot_player_cannon_system(
     mut event_hit: EventWriter<Hit>,
     mut event_audio: EventWriter<AudioEvent>,
     mut cannon_query: Query<(&GlobalTransform, &mut Cannon), With<Player>>,
-    shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Enemy>>,
+    shootable_query: Query<(&GlobalTransform, Entity, &Parent), (With<Enemy>, Without<ShieldForcefield>)>,
 ) {
     for (cannon_transform, mut cannon_stats) in cannon_query.iter_mut() {
         if cannon_stats.cooldown_timer > 0. {
@@ -272,15 +272,39 @@ pub fn shoot_player_cannon_system(
 pub fn check_hits_system(
     mut event_hit: EventReader<Hit>,
     mut player_query: Query<(&mut Properties, Entity), (With<PlayerRoot>, Without<EnemyRoot>)>,
+    mut element_query: Query<
+        (&mut Sprite, Option<&Player>, &Parent),
+        (Without<PlayerRoot>, Without<EnemyRoot>),
+    >,
     mut enemy_query: Query<(&mut Properties, Entity), (With<EnemyRoot>, Without<PlayerRoot>)>,
 ) {
     let (mut player_stats, player_entity) = player_query.single_mut();
     for hit in event_hit.iter() {
         if hit.target == player_entity {
             player_stats.health = player_stats.health.saturating_sub(hit.damage);
+            // Tint player red
+            for (mut sprite, is_player, _) in element_query.iter_mut() {
+                if is_player.is_some() {
+                    sprite.color = Color::rgb(1., 0., 0.);
+                }
+            }
         } else if let Ok((mut enemy_properties, _)) = enemy_query.get_mut(hit.target) {
             enemy_properties.health = enemy_properties.health.saturating_sub(hit.damage);
+            // Tint enemy yellow
+            for (mut sprite, _, parent) in element_query.iter_mut() {
+                if parent.get() == hit.target {
+                    sprite.color = Color::rgb(1., 1., 0.);
+                }
+            }
         }
+    }
+}
+
+pub fn reset_sprite_tint_system(
+    mut sprite_query: Query<&mut Sprite, Or<(With<Player>, With<Enemy>)>>,
+) {
+    for mut sprite in sprite_query.iter_mut() {
+        sprite.color = Color::rgb(1., 1., 1.);
     }
 }
 

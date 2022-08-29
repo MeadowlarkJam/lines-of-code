@@ -21,16 +21,15 @@ pub struct Properties {
 // Powerup nodes
 #[derive(Component)]
 pub struct Shield {
+}
+
+#[derive(Component)]
+pub struct ShieldForcefield {
     // Health of the shield until the cooldown starts
     pub health: u32,
     // Cooldown in seconds
     pub cooldown: f32,
     pub cooldown_timer: f32,
-}
-
-#[derive(Component)]
-pub struct ShieldForcefield {
-    pub active: bool,
 }
 
 #[derive(Component)]

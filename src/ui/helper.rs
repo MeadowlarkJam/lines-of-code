@@ -68,7 +68,7 @@ pub fn default_node_bundle_style() -> Style {
 pub fn default_button_bundle() -> ButtonBundle {
     ButtonBundle {
         style: Style {
-            size: Size::new(Val::Percent(40.), Val::Percent(20.)),
+            size: Size::new(Val::Percent(40.), Val::Percent(10.)),
             padding: UiRect::all(Val::Px(20.0)),
             margin: UiRect::all(Val::Px(10.0)),
             justify_content: JustifyContent::Center,

@@ -2,7 +2,7 @@ use super::Object;
 use crate::{
     asset::SpriteHandles,
     audio::{AudioEvent, AudioType},
-    components::{Bullet, Cannon, Collider, Projectile, Properties, Shield, Velocity, Zapper},
+    components::{Bullet, Cannon, Collider, Projectile, Properties, Shield, Velocity, Zapper, ShieldForcefield},
     enemy::Enemy,
     events::Hit,
     nodes::{spawn_cannon_node, spawn_empty_node, spawn_zapper_node},
@@ -195,7 +195,7 @@ pub fn bullet_collision(
         (
             &GlobalTransform,
             &mut Visibility,
-            &mut Shield,
+            &mut ShieldForcefield,
             Option<&Enemy>,
         ),
         With<Parent>,
@@ -273,7 +273,7 @@ pub fn clean_bullets(
 }
 
 pub fn forcefield_cooldown_system(
-    mut forcefield_query: Query<(&mut Shield, &mut Visibility), With<Parent>>,
+    mut forcefield_query: Query<(&mut ShieldForcefield, &mut Visibility), With<Parent>>,
     time: Res<Time>,
 ) {
     for (mut forcefield_stats, mut forcefield_visibility) in forcefield_query.iter_mut() {

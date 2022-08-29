@@ -50,7 +50,7 @@ pub fn spawn_shieldy(mut commands: Commands, sprite_handles: Res<SpriteHandles>,
         rand::random::<f32>() * 2. * std::f32::consts::PI,
         sprite_handles.shield.clone(),
         sprite_handles.forcefield.clone(),
-        Shield {
+        ShieldForcefield {
             health: 10,
             cooldown: 3.,
             cooldown_timer: 0.,
@@ -65,7 +65,7 @@ pub fn spawn_shieldy(mut commands: Commands, sprite_handles: Res<SpriteHandles>,
         rand::random::<f32>() * 2. * std::f32::consts::PI,
         sprite_handles.shield.clone(),
         sprite_handles.forcefield.clone(),
-        Shield {
+        ShieldForcefield {
             health: 10,
             cooldown: 3.,
             cooldown_timer: 0.,

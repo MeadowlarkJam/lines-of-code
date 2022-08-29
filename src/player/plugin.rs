@@ -3,9 +3,9 @@ use std::time::Duration;
 use super::{
     systems::{
         check_attachment_system, check_hits_system, check_player_death_system, move_player_system,
-        remove_zap_effect_system, rotate_player_system, shoot_player_cannon_system,
-        shoot_player_zapper_system, spawn_player_system, update_player_history_system,
-        update_player_properties_system,
+        remove_zap_effect_system, reset_sprite_tint_system, rotate_player_system,
+        shoot_player_cannon_system, shoot_player_zapper_system, spawn_player_system,
+        update_player_history_system, update_player_properties_system,
     },
     PlayerHistory, PlayerRoot, PlayerSizeIncreased,
 };
@@ -13,7 +13,7 @@ use crate::{
     despawn_recursive::despawn_entities_recursive_system, enemy::systems::shoot_zappy_enemy_system,
     object::ObjectSystem, schedule::GameState,
 };
-use bevy::prelude::*;
+use bevy::{prelude::*, time::FixedTimestep};
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, SystemLabel)]
 pub struct PlayerSystem;
@@ -25,7 +25,7 @@ impl Plugin for PlayerPlugin {
         app.insert_resource(PlayerHistory {
             target_position: Vec3::ZERO,
             new_position: Vec3::ZERO,
-            timer: Timer::new(Duration::from_secs_f32(0.3), true),
+            timer: Timer::new(Duration::from_secs_f32(0.4), true),
         })
         .add_event::<PlayerSizeIncreased>()
         .add_system_set(
@@ -55,6 +55,11 @@ impl Plugin for PlayerPlugin {
             SystemSet::on_exit(GameState::InGame)
                 .label(PlayerSystem)
                 .with_system(despawn_entities_recursive_system::<PlayerRoot>),
+        )
+        .add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(1.0 / 4.))
+                .with_system(reset_sprite_tint_system),
         );
     }
 }
