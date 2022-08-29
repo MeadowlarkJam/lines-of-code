@@ -1,3 +1,5 @@
+use crate::camera::RandomNumberResource;
+
 use super::Starfield;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
@@ -10,6 +12,7 @@ pub fn spawn_starfield_system(
     mut windows: ResMut<Windows>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<CustomMaterial>>,
+    random: Res<RandomNumberResource>,
     asset_server: Res<AssetServer>,
 ) {
     asset_server.watch_for_changes().unwrap();
@@ -29,7 +32,7 @@ pub fn spawn_starfield_system(
         .spawn_bundle(MaterialMesh2dBundle {
             mesh: quad_handle.into(),
             material: material_handle.clone(),
-            transform: Transform::from_xyz(0.0, 0.0, -1.0),
+            transform: Transform::from_xyz(random.rand1, random.rand2, -1.0),
             ..default()
         })
         .insert(Starfield {

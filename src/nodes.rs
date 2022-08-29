@@ -29,6 +29,7 @@ pub fn spawn_shield_node<'a>(
     asset: Handle<Image>,
     field_asset: Handle<Image>,
     shield_stats: ShieldForcefield,
+    is_enemy: bool,
 ) -> Entity {
     // Spawn the forcefield and add it as a child to the shield
     let forcefield = spawn_shield_forcefield(
@@ -39,6 +40,9 @@ pub fn spawn_shield_node<'a>(
         field_asset,
         shield_stats,
     );
+    if is_enemy {
+        commands.entity(forcefield).insert(Enemy {});
+    }
     let shield_node = spawn_empty_node(commands, position, rotation, asset);
     commands
         .entity(shield_node)
@@ -68,11 +72,7 @@ pub fn spawn_shield_forcefield<'a>(
         })
         .id();
 
-    commands
-        .entity(forcefield_node)
-        .insert(stats)
-        .insert(Enemy {})
-        .id()
+    commands.entity(forcefield_node).insert(stats).id()
 }
 
 pub fn spawn_zapper_node<'a>(

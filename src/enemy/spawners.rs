@@ -55,6 +55,7 @@ pub fn spawn_shieldy(mut commands: Commands, sprite_handles: Res<SpriteHandles>,
             cooldown: 3.,
             cooldown_timer: 0.,
         },
+        true,
     );
 
     commands.entity(shield_right).insert(Collider).insert(Enemy);
@@ -70,6 +71,7 @@ pub fn spawn_shieldy(mut commands: Commands, sprite_handles: Res<SpriteHandles>,
             cooldown: 3.,
             cooldown_timer: 0.,
         },
+        true,
     );
     commands.entity(shield_left).insert(Collider).insert(Enemy);
 
