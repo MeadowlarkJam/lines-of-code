@@ -25,7 +25,7 @@ impl Plugin for PlayerPlugin {
         app.insert_resource(PlayerHistory {
             target_position: Vec3::ZERO,
             new_position: Vec3::ZERO,
-            timer: Timer::new(Duration::from_secs_f32(0.4), true),
+            timer: Timer::new(Duration::from_secs_f32(0.2), true),
         })
         .add_event::<PlayerSizeIncreased>()
         .add_system_set(

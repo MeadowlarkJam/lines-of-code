@@ -190,7 +190,7 @@ pub fn bullet_collision(
     mut event_hit: EventWriter<Hit>,
     mut event_audio: EventWriter<AudioEvent>,
     hittable_query: Query<
-        (Entity, &GlobalTransform, Option<&Enemy>),
+        (Entity, &GlobalTransform, Option<&Enemy>, &Parent),
         Or<(With<Enemy>, With<Player>)>,
     >,
     bullet_query: Query<(Entity, &Transform, &Bullet)>,
@@ -235,7 +235,7 @@ pub fn bullet_collision(
 
     // If no forcefield, check for enemy collision
     // On collision, do hit event and remove bullet
-    for (hittable_entity, hittable_transform, is_enemy) in hittable_query.iter() {
+    for (_hittable_entity, hittable_transform, is_enemy, parent) in hittable_query.iter() {
         for (bullet_entity, bullet_transform, bullet_stats) in bullet_query.iter() {
             let distance = hittable_transform
                 .compute_transform()
@@ -246,7 +246,7 @@ pub fn bullet_collision(
                     continue;
                 }
                 event_hit.send(Hit {
-                    target: hittable_entity,
+                    target: parent.get(),
                     damage: bullet_stats.damage,
                 });
                 event_audio.send(AudioEvent(AudioType::Hit));

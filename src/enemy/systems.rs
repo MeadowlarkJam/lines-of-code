@@ -38,7 +38,7 @@ pub fn check_enemy_death_system(
                         sprite_handles.shield.clone(),
                         sprite_handles.forcefield.clone(),
                         ShieldForcefield {
-                            health: 100,
+                            health: 20,
                             cooldown: 3.,
                             cooldown_timer: 0.,
                         },
@@ -264,7 +264,6 @@ pub fn shoot_zappy_enemy_system(
 pub fn shoot_enemy_cannon_system(
     mut commands: Commands,
     time: Res<Time>,
-    mut event_hit: EventWriter<Hit>,
     mut event_audio: EventWriter<AudioEvent>,
     mut cannon_query: Query<(&GlobalTransform, &mut Cannon), With<Enemy>>,
     shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Player>>,
@@ -274,7 +273,8 @@ pub fn shoot_enemy_cannon_system(
         if cannon_stats.cooldown_timer > 0. {
             cannon_stats.cooldown_timer -= time.delta_seconds();
         } else {
-            for (shootable_transform, _shootable_entity, shootable_parent) in shootable_query.iter()
+            for (shootable_transform, _shootable_entity, _shootable_parent) in
+                shootable_query.iter()
             {
                 let distance = cannon_transform
                     .compute_transform()
