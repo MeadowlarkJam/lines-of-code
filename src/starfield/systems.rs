@@ -1,10 +1,10 @@
-use crate::camera::RandomNumberResource;
+use crate::camera::{MainCamera, RandomNumberResource};
 
 use super::Starfield;
 use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
 use bevy::render::render_resource::{AsBindGroup, ShaderRef};
-use bevy::sprite::Material2d;
+use bevy::sprite::{Material2d, Mesh2dHandle};
 use bevy::{prelude::Transform, sprite::MaterialMesh2dBundle};
 
 pub fn spawn_starfield_system(
@@ -38,6 +38,24 @@ pub fn spawn_starfield_system(
         .insert(Starfield {
             handle: material_handle,
         });
+}
+
+pub fn update_starfield_size_system(
+    mut windows: ResMut<Windows>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    q_mesh: Query<&Mesh2dHandle, With<Starfield>>,
+    q_camera: Query<&Transform, With<MainCamera>>,
+) {
+    let window = windows.get_primary_mut().unwrap();
+    let starfield_handle = q_mesh.single();
+    let camera = q_camera.single();
+
+    if let Some(mesh) = meshes.get_mut(&starfield_handle.0) {
+        *mesh = Mesh::from(shape::Quad::new(Vec2::new(
+            window.physical_width() as f32 * camera.scale.x,
+            window.physical_height() as f32 * camera.scale.x,
+        )));
+    }
 }
 
 #[derive(AsBindGroup, TypeUuid, Debug, Clone)]

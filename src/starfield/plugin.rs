@@ -1,4 +1,4 @@
-use super::systems::spawn_starfield_system;
+use super::systems::{spawn_starfield_system, update_starfield_size_system};
 use crate::schedule::GameState;
 use bevy::prelude::*;
 
@@ -13,6 +13,11 @@ impl Plugin for StarfieldPlugin {
             SystemSet::on_enter(GameState::BeforeSplashScreen)
                 .label(StarfieldSystem)
                 .with_system(spawn_starfield_system),
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::InGame)
+                .label(StarfieldSystem)
+                .with_system(update_starfield_size_system),
         );
     }
 }
