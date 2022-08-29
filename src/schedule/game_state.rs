@@ -2,9 +2,21 @@
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GameState {
     AssetLoading,
-    SplashScreen,
-    MainMenu,
-    InGame,
     Paused,
+
+    BeforeSplashScreen,
+    SplashScreen,
+    AfterSplashScreen,
+
+    BeforeMainMenu,
+    MainMenu,
+    AfterMainMenu,
+
+    BeforeInGame,
+    InGame,
+    AfterInGame,
+
+    BeforeEndScreen,
     EndScreen,
+    AfterEndScreen,
 }

@@ -31,7 +31,7 @@ impl Plugin for EnemyPlugin {
                     .with_system(spawn_random_enemies_system),
             )
             .add_system_set(
-                SystemSet::on_exit(GameState::InGame)
+                SystemSet::on_exit(GameState::AfterInGame)
                     .label(EnemySystem)
                     .with_system(despawn_entities_recursive_system::<EnemyRoot>),
             );

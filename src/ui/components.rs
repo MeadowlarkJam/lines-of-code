@@ -31,9 +31,6 @@ pub struct UiKills;
 pub struct UiEnemiesAlive;
 
 #[derive(Component)]
-pub struct SplashScreenTimer(pub Timer);
-
-#[derive(Component)]
 pub enum MainMenuButtonAction {
     Play,
     Quit,

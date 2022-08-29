@@ -69,7 +69,7 @@ pub fn check_if_assets_are_loaded_system(
     match asset_server.get_group_load_state(loading_assets.iter().map(|h| h.id)) {
         LoadState::Loaded => {
             commands.remove_resource::<LoadingAssets>();
-            game_state.set(GameState::SplashScreen).unwrap();
+            game_state.set(GameState::BeforeSplashScreen).unwrap();
         }
         LoadState::Failed => panic!("Failed to load assets"),
         _ => {}

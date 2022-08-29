@@ -1,4 +1,4 @@
-use super::{resources::AudioTimer, AudioEvent, AudioType};
+use super::{resources::AudioTimer, AudioEvent, AudioType, PriorityAudioEvent, PriorityAudioType};
 use crate::asset::AudioHandles;
 use bevy::prelude::*;
 
@@ -42,23 +42,41 @@ pub fn play_ingame_audio_system(
     audio_events.clear();
 }
 
-pub fn play_intro_audio_system(audio: Res<Audio>, audio_handles: Res<AudioHandles>) {
-    audio.play_with_settings(
-        audio_handles.intro.clone(),
-        PlaybackSettings::ONCE.with_volume(0.1),
-    );
+pub fn play_priority_audio_system(
+    mut audio_events: EventReader<PriorityAudioEvent>,
+    audio: Res<Audio>,
+    audio_handles: Res<AudioHandles>,
+) {
+    for event in audio_events.iter() {
+        match event {
+            PriorityAudioEvent(PriorityAudioType::Intro) => {
+                audio.play_with_settings(
+                    audio_handles.intro.clone(),
+                    PlaybackSettings::ONCE.with_volume(0.1),
+                );
+            }
+            PriorityAudioEvent(PriorityAudioType::Music) => {
+                audio.play_with_settings(
+                    audio_handles.music.clone(),
+                    PlaybackSettings::LOOP.with_volume(0.2),
+                );
+            }
+            PriorityAudioEvent(PriorityAudioType::Death) => {
+                audio.play_with_settings(
+                    audio_handles.death.clone(),
+                    PlaybackSettings::ONCE.with_volume(0.1),
+                );
+            }
+        }
+    }
+
+    audio_events.clear();
 }
 
-pub fn play_music_audio_system(audio: Res<Audio>, audio_handles: Res<AudioHandles>) {
-    audio.play_with_settings(
-        audio_handles.music.clone(),
-        PlaybackSettings::LOOP.with_volume(0.2),
-    );
+pub fn play_intro_audio_system(mut audio_events: EventWriter<PriorityAudioEvent>) {
+    audio_events.send(PriorityAudioEvent(PriorityAudioType::Intro));
 }
 
-pub fn play_death_audio_system(audio: Res<Audio>, audio_handles: Res<AudioHandles>) {
-    audio.play_with_settings(
-        audio_handles.death.clone(),
-        PlaybackSettings::ONCE.with_volume(0.1),
-    );
+pub fn play_music_audio_system(mut audio_events: EventWriter<PriorityAudioEvent>) {
+    audio_events.send(PriorityAudioEvent(PriorityAudioType::Music));
 }

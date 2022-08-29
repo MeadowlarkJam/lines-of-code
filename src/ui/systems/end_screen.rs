@@ -1,6 +1,6 @@
 use crate::{
     asset::FontHandles,
-    schedule::GameState,
+    schedule::{GameState, ScheduleQueue},
     stats::Stats,
     ui::{
         components::{EndScreenButtonAction, OnDeathScreen},
@@ -117,12 +117,19 @@ pub fn end_screen_button_interaction_system(
     query: Query<(&Interaction, &EndScreenButtonAction), (Changed<Interaction>, With<Button>)>,
     mut app_exit_events: EventWriter<AppExit>,
     mut game_state: ResMut<State<GameState>>,
+    mut schedule_queue: ResMut<ScheduleQueue>,
 ) {
     for (interaction, action) in query.iter() {
         if *interaction == Interaction::Clicked {
             match action {
-                EndScreenButtonAction::Restart => game_state.set(GameState::InGame).unwrap(),
-                EndScreenButtonAction::MainMenu => game_state.set(GameState::MainMenu).unwrap(),
+                EndScreenButtonAction::Restart => {
+                    game_state.set(GameState::AfterEndScreen).unwrap();
+                    schedule_queue.0.push_back(GameState::BeforeInGame);
+                }
+                EndScreenButtonAction::MainMenu => {
+                    game_state.set(GameState::AfterEndScreen).unwrap();
+                    schedule_queue.0.push_back(GameState::BeforeMainMenu);
+                }
                 EndScreenButtonAction::Quit => app_exit_events.send(AppExit),
             }
         }

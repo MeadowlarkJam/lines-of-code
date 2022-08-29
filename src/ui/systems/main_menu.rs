@@ -1,6 +1,6 @@
 use crate::{
     asset::FontHandles,
-    schedule::GameState,
+    schedule::{GameState, ScheduleQueue},
     ui::{
         components::{MainMenuButtonAction, OnMainMenuScreen},
         helper::{
@@ -74,11 +74,15 @@ pub fn main_menu_button_interaction_system(
     query: Query<(&Interaction, &MainMenuButtonAction), (Changed<Interaction>, With<Button>)>,
     mut app_exit_events: EventWriter<AppExit>,
     mut game_state: ResMut<State<GameState>>,
+    mut schedule_queue: ResMut<ScheduleQueue>,
 ) {
     for (interaction, action) in query.iter() {
         if *interaction == Interaction::Clicked {
             match action {
-                MainMenuButtonAction::Play => game_state.set(GameState::InGame).unwrap(),
+                MainMenuButtonAction::Play => {
+                    game_state.set(GameState::AfterMainMenu).unwrap();
+                    schedule_queue.0.push_back(GameState::BeforeInGame);
+                }
                 MainMenuButtonAction::Quit => app_exit_events.send(AppExit),
             }
         }

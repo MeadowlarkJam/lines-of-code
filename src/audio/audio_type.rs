@@ -4,3 +4,10 @@ pub enum AudioType {
     Laser,
     Explosion,
 }
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum PriorityAudioType {
+    Intro,
+    Music,
+    Death,
+}

@@ -13,7 +13,7 @@ pub struct CameraPlugin;
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
-            SystemSet::on_enter(GameState::SplashScreen)
+            SystemSet::on_enter(GameState::BeforeSplashScreen)
                 .label(CameraSystem)
                 .with_system(spawn_camera_system),
         )

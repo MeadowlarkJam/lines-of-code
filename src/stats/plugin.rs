@@ -21,7 +21,7 @@ impl Plugin for StatsPlugin {
                     .with_system(update_stats_system),
             )
             .add_system_set(
-                SystemSet::on_enter(GameState::InGame)
+                SystemSet::on_enter(GameState::BeforeInGame)
                     .label(StatsSystem)
                     .with_system(reset_stats_system),
             );
