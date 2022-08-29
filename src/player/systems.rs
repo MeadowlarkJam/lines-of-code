@@ -1,13 +1,13 @@
 use super::{constants::PLAYER_SPEED, Player, PlayerRoot, PlayerSizeIncreased};
 use crate::{
     asset::SpriteHandles,
-    audio::{AudioEvent, AudioType},
+    audio::{AudioEvent, AudioType, PriorityAudioEvent, PriorityAudioType},
     camera::MainCamera,
     components::{Bullet, Cannon, Collider, Projectile, Properties, Velocity, ZapEffect, Zapper},
     enemy::{Enemy, EnemyRoot},
     events::Hit,
     object::Object,
-    schedule::GameState,
+    schedule::{GameState, ScheduleQueue},
     starfield::{CustomMaterial, Starfield},
 };
 use bevy::{prelude::*, render::camera::RenderTarget};
@@ -291,10 +291,15 @@ pub fn remove_zap_effect_system(mut commands: Commands, query: Query<Entity, Wit
 pub fn check_player_death_system(
     mut query: Query<&Properties, With<PlayerRoot>>,
     mut game_state: ResMut<State<GameState>>,
+    mut schedule_queue: ResMut<ScheduleQueue>,
+    mut audio_events: EventWriter<PriorityAudioEvent>,
+    input: Res<Input<KeyCode>>,
 ) {
     for properties in query.iter_mut() {
-        if properties.health == 0 {
-            game_state.set(GameState::EndScreen).unwrap();
+        if properties.health == 0 || input.just_pressed(KeyCode::G) {
+            audio_events.send(PriorityAudioEvent(PriorityAudioType::Death));
+            game_state.set(GameState::AfterInGame).unwrap();
+            schedule_queue.0.push_back(GameState::BeforeEndScreen);
         }
     }
 }

@@ -21,7 +21,7 @@ pub struct ObjectPlugin;
 impl Plugin for ObjectPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
-            SystemSet::on_enter(GameState::InGame)
+            SystemSet::on_enter(GameState::BeforeInGame)
                 .label(ObjectSystem)
                 .with_system(spawn_start_objects_system),
         )
@@ -37,7 +37,7 @@ impl Plugin for ObjectPlugin {
                 .with_system(clean_bullets.after(bullet_collision)),
         )
         .add_system_set(
-            SystemSet::on_exit(GameState::InGame)
+            SystemSet::on_exit(GameState::AfterInGame)
                 .label(ObjectSystem)
                 .with_system(despawn_entities_recursive_system::<Object>)
                 .with_system(despawn_entities_recursive_system::<ZapEffect>)

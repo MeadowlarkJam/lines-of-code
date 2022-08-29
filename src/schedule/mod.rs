@@ -1,6 +1,10 @@
-mod events;
 mod game_state;
 mod plugin;
+mod resources;
 mod systems;
 
-pub use self::{events::GotoMainMenu, game_state::GameState, plugin::SchedulePlugin};
+pub use self::{
+    game_state::GameState,
+    plugin::{SchedulePlugin, ScheduleSystem},
+    resources::{ScheduleQueue, ScheduleTimer},
+};

@@ -5,7 +5,7 @@ mod resources;
 mod systems;
 
 pub use self::{
-    audio_type::AudioType,
-    events::AudioEvent,
+    audio_type::{AudioType, PriorityAudioType},
+    events::{AudioEvent, PriorityAudioEvent},
     plugin::{AudioPlugin, AudioSystem},
 };

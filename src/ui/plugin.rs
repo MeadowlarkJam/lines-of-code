@@ -23,7 +23,7 @@ impl Plugin for UiPlugin {
         app.add_system(button_highlight_system)
             // Splash Screen
             .add_system_set(
-                SystemSet::on_enter(GameState::SplashScreen)
+                SystemSet::on_enter(GameState::BeforeSplashScreen)
                     .label(UiSystem)
                     .with_system(spawn_splash_screen_system),
             )
@@ -33,13 +33,13 @@ impl Plugin for UiPlugin {
                     .with_system(update_splash_screen_system),
             )
             .add_system_set(
-                SystemSet::on_exit(GameState::SplashScreen)
+                SystemSet::on_exit(GameState::AfterSplashScreen)
                     .label(UiSystem)
                     .with_system(despawn_entities_recursive_system::<OnSplashScreen>),
             )
             // Main Menu
             .add_system_set(
-                SystemSet::on_enter(GameState::MainMenu)
+                SystemSet::on_enter(GameState::BeforeMainMenu)
                     .label(UiSystem)
                     .with_system(spawn_main_menu_ui_system),
             )
@@ -49,15 +49,23 @@ impl Plugin for UiPlugin {
                     .with_system(main_menu_button_interaction_system),
             )
             .add_system_set(
-                SystemSet::on_exit(GameState::MainMenu)
+                SystemSet::on_exit(GameState::AfterMainMenu)
                     .label(UiSystem)
                     .with_system(despawn_entities_recursive_system::<OnMainMenuScreen>),
             )
             // InGame
             .add_system_set(
-                SystemSet::on_enter(GameState::InGame)
+                SystemSet::on_enter(GameState::BeforeInGame)
                     .label(UiSystem)
                     .with_system(spawn_ingame_ui_system),
+            )
+            .add_system_set(
+                SystemSet::on_update(GameState::BeforeInGame)
+                    .label(UiSystem)
+                    .with_system(update_ui_score_system)
+                    .with_system(update_ui_player_stats_system)
+                    .with_system(update_ui_kills_system)
+                    .with_system(update_ui_enemies_alive_system),
             )
             .add_system_set(
                 SystemSet::on_update(GameState::InGame)
@@ -68,7 +76,7 @@ impl Plugin for UiPlugin {
                     .with_system(update_ui_enemies_alive_system),
             )
             .add_system_set(
-                SystemSet::on_exit(GameState::InGame)
+                SystemSet::on_exit(GameState::AfterInGame)
                     .label(UiSystem)
                     .with_system(despawn_entities_recursive_system::<OnIngameScreen>),
             )
@@ -90,7 +98,7 @@ impl Plugin for UiPlugin {
             )
             // End screen
             .add_system_set(
-                SystemSet::on_enter(GameState::EndScreen)
+                SystemSet::on_enter(GameState::BeforeEndScreen)
                     .label(UiSystem)
                     .with_system(spawn_end_screen_ui_system),
             )
@@ -100,7 +108,7 @@ impl Plugin for UiPlugin {
                     .with_system(end_screen_button_interaction_system),
             )
             .add_system_set(
-                SystemSet::on_exit(GameState::EndScreen)
+                SystemSet::on_exit(GameState::AfterEndScreen)
                     .label(UiSystem)
                     .with_system(despawn_entities_recursive_system::<OnDeathScreen>),
             );

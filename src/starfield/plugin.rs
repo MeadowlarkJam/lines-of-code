@@ -10,7 +10,7 @@ pub struct StarfieldPlugin;
 impl Plugin for StarfieldPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
-            SystemSet::on_enter(GameState::SplashScreen)
+            SystemSet::on_enter(GameState::BeforeSplashScreen)
                 .label(StarfieldSystem)
                 .with_system(spawn_starfield_system),
         );

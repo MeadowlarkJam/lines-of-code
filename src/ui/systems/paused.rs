@@ -1,6 +1,6 @@
 use crate::{
     asset::FontHandles,
-    schedule::{GameState, GotoMainMenu},
+    schedule::{GameState, ScheduleQueue},
     ui::{
         components::{OnPausedScreen, PausedScreenButtonAction},
         helper::{default_button_bundle, default_node_bundle_style},
@@ -61,15 +61,15 @@ pub fn paused_button_interaction_system(
     query: Query<(&Interaction, &PausedScreenButtonAction), (Changed<Interaction>, With<Button>)>,
     mut app_exit_events: EventWriter<AppExit>,
     mut game_state: ResMut<State<GameState>>,
-    mut event_writer: EventWriter<GotoMainMenu>,
+    mut schedule_queue: ResMut<ScheduleQueue>,
 ) {
     for (interaction, action) in query.iter() {
         if *interaction == Interaction::Clicked {
             match action {
                 PausedScreenButtonAction::Continue => game_state.pop().unwrap(),
                 PausedScreenButtonAction::MainMenu => {
-                    event_writer.send(GotoMainMenu);
-                    game_state.pop().unwrap();
+                    game_state.set(GameState::AfterInGame).unwrap();
+                    schedule_queue.0.push_back(GameState::BeforeMainMenu);
                 }
                 PausedScreenButtonAction::Quit => app_exit_events.send(AppExit),
             }

@@ -20,7 +20,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerSizeIncreased>()
             .add_system_set(
-                SystemSet::on_enter(GameState::InGame)
+                SystemSet::on_enter(GameState::BeforeInGame)
                     .label(PlayerSystem)
                     .with_system(spawn_player_system),
             )
@@ -42,7 +42,7 @@ impl Plugin for PlayerPlugin {
                     .with_system(check_player_death_system.after(check_hits_system)),
             )
             .add_system_set(
-                SystemSet::on_exit(GameState::InGame)
+                SystemSet::on_exit(GameState::AfterInGame)
                     .label(PlayerSystem)
                     .with_system(despawn_entities_recursive_system::<PlayerRoot>),
             );
