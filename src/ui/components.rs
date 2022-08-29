@@ -28,17 +28,22 @@ pub struct UiScore;
 pub struct UiKills;
 
 #[derive(Component)]
+pub struct UiVolume;
+
+#[derive(Component)]
 pub struct UiEnemiesAlive;
 
 #[derive(Component)]
 pub enum MainMenuButtonAction {
     Play,
+    Volume,
     Quit,
 }
 
 #[derive(Component)]
 pub enum PausedScreenButtonAction {
     Continue,
+    Volume,
     MainMenu,
     Quit,
 }

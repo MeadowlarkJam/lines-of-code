@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{audio::AudioSink, prelude::*};
 use std::ops::{Deref, DerefMut};
 
 #[derive(Default)]
@@ -26,6 +26,15 @@ pub struct AudioHandles {
     pub cannon: Handle<AudioSource>,
     pub intro: Handle<AudioSource>,
     pub music: Handle<AudioSource>,
+
+    pub connect_sink: Handle<AudioSink>,
+    pub death_sink: Handle<AudioSink>,
+    pub hit_sink: Handle<AudioSink>,
+    pub laser_sink: Handle<AudioSink>,
+    pub explosion_sink: Handle<AudioSink>,
+    pub cannon_sink: Handle<AudioSink>,
+    pub intro_sink: Handle<AudioSink>,
+    pub music_sink: Handle<AudioSink>,
 }
 
 #[derive(Default)]

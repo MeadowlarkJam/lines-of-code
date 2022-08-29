@@ -125,7 +125,7 @@ create_schedule_system! {
     on_enter_after_in_game_system,
     on_update_after_in_game_system,
     on_exit_after_in_game_system,
-    0.5,
+    3.0,
 }
 
 // End Screen

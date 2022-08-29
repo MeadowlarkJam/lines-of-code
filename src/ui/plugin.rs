@@ -6,7 +6,7 @@ use super::{
         spawn_end_screen_ui_system, spawn_ingame_ui_system, spawn_main_menu_ui_system,
         spawn_paused_ui_system, spawn_splash_screen_system, update_splash_screen_system,
         update_ui_enemies_alive_system, update_ui_kills_system, update_ui_player_stats_system,
-        update_ui_score_system,
+        update_ui_score_system, update_ui_volume_system,
     },
 };
 use crate::{despawn_recursive::despawn_entities_recursive_system, schedule::GameState};
@@ -46,7 +46,8 @@ impl Plugin for UiPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::MainMenu)
                     .label(UiSystem)
-                    .with_system(main_menu_button_interaction_system),
+                    .with_system(main_menu_button_interaction_system)
+                    .with_system(update_ui_volume_system),
             )
             .add_system_set(
                 SystemSet::on_exit(GameState::AfterMainMenu)
@@ -89,7 +90,8 @@ impl Plugin for UiPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Paused)
                     .label(UiSystem)
-                    .with_system(paused_button_interaction_system),
+                    .with_system(paused_button_interaction_system)
+                    .with_system(update_ui_volume_system),
             )
             .add_system_set(
                 SystemSet::on_exit(GameState::Paused)

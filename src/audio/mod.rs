@@ -8,4 +8,5 @@ pub use self::{
     audio_type::{AudioType, PriorityAudioType},
     events::{AudioEvent, PriorityAudioEvent},
     plugin::{AudioPlugin, AudioSystem},
+    resources::AudioSettings,
 };

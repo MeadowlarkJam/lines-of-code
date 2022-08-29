@@ -1,4 +1,6 @@
-use super::constants::{COLOR_BUTTON_DEFAULT, FONT_SIZE_LARGE, FONT_SIZE_MEDIUM, FONT_SIZE_SMALL};
+use super::constants::{
+    COLOR_BUTTON_DEFAULT, FONT_SIZE_HUGE, FONT_SIZE_LARGE, FONT_SIZE_MEDIUM, FONT_SIZE_SMALL,
+};
 use crate::colors::{COLOR_ACCENT, COLOR_FOREGROUND};
 use bevy::prelude::*;
 
@@ -29,6 +31,15 @@ pub fn default_large_button_text_style(font: Handle<Font>) -> TextStyle {
 }
 
 #[allow(dead_code)]
+pub fn default_huge_button_text_style(font: Handle<Font>) -> TextStyle {
+    TextStyle {
+        font,
+        font_size: FONT_SIZE_HUGE,
+        color: COLOR_FOREGROUND,
+    }
+}
+
+#[allow(dead_code)]
 pub fn accent_small_button_text_style(font: Handle<Font>) -> TextStyle {
     TextStyle {
         font,
@@ -49,6 +60,14 @@ pub fn accent_large_button_text_style(font: Handle<Font>) -> TextStyle {
     TextStyle {
         font,
         font_size: FONT_SIZE_LARGE,
+        color: COLOR_ACCENT,
+    }
+}
+
+pub fn accent_huge_button_text_style(font: Handle<Font>) -> TextStyle {
+    TextStyle {
+        font,
+        font_size: FONT_SIZE_HUGE,
         color: COLOR_ACCENT,
     }
 }

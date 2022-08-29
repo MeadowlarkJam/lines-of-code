@@ -1,7 +1,7 @@
 use crate::{
     asset::FontHandles,
     schedule::{GameState, ScheduleQueue},
-    ui::{components::OnSplashScreen, helper::accent_large_button_text_style},
+    ui::{components::OnSplashScreen, helper::accent_huge_button_text_style},
 };
 use bevy::prelude::*;
 
@@ -10,7 +10,7 @@ pub fn spawn_splash_screen_system(mut commands: Commands, font_handles: Res<Font
         .spawn_bundle(
             TextBundle::from_section(
                 "Escape Pod",
-                accent_large_button_text_style(font_handles.default.clone()),
+                accent_huge_button_text_style(font_handles.default.clone()),
             )
             .with_style(Style {
                 align_self: AlignSelf::Center,

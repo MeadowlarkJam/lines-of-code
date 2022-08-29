@@ -1,16 +1,21 @@
 use crate::{
     asset::FontHandles,
+    audio::AudioSettings,
     colors::COLOR_TRANSPARENT,
     schedule::{GameState, ScheduleQueue},
     ui::helper::default_small_button_text_style,
     ui::{
-        components::{OnPausedScreen, PausedScreenButtonAction},
+        components::{OnPausedScreen, PausedScreenButtonAction, UiVolume},
         helper::{default_button_bundle, default_node_bundle_style},
     },
 };
 use bevy::{app::AppExit, prelude::*};
 
-pub fn spawn_paused_ui_system(mut commands: Commands, font_handles: Res<FontHandles>) {
+pub fn spawn_paused_ui_system(
+    mut commands: Commands,
+    font_handles: Res<FontHandles>,
+    audio_settings: Res<AudioSettings>,
+) {
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -44,6 +49,25 @@ pub fn spawn_paused_ui_system(mut commands: Commands, font_handles: Res<FontHand
                     ));
                 });
 
+            // Volume button
+            parent
+                .spawn_bundle(default_button_bundle())
+                .insert(PausedScreenButtonAction::Volume)
+                .with_children(|parent| {
+                    parent
+                        .spawn_bundle(TextBundle::from_sections([
+                            TextSection::new(
+                                "Volume: ",
+                                default_small_button_text_style(font_handles.default.clone()),
+                            ),
+                            TextSection::new(
+                                format!("{}%", audio_settings.volume()),
+                                default_small_button_text_style(font_handles.default.clone()),
+                            ),
+                        ]))
+                        .insert(UiVolume);
+                });
+
             // Quit button
             parent
                 .spawn_bundle(default_button_bundle())
@@ -63,11 +87,13 @@ pub fn paused_button_interaction_system(
     mut app_exit_events: EventWriter<AppExit>,
     mut game_state: ResMut<State<GameState>>,
     mut schedule_queue: ResMut<ScheduleQueue>,
+    mut audio_settings: ResMut<AudioSettings>,
 ) {
     for (interaction, action) in query.iter() {
         if *interaction == Interaction::Clicked {
             match action {
                 PausedScreenButtonAction::Continue => game_state.pop().unwrap(),
+                PausedScreenButtonAction::Volume => audio_settings.toggle(),
                 PausedScreenButtonAction::MainMenu => {
                     game_state.set(GameState::AfterInGame).unwrap();
                     schedule_queue.0.push_back(GameState::BeforeMainMenu);

@@ -12,8 +12,8 @@ impl Plugin for WindowPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(WindowDescriptor {
             title: String::from("Escape Pod"),
-            width: 1920.0,
-            height: 1080.0,
+            width: 1280.0,
+            height: 720.0,
             position: WindowPosition::Automatic,
             resize_constraints: WindowResizeConstraints::default(),
             scale_factor_override: None,

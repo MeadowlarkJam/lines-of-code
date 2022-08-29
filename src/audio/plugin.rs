@@ -1,9 +1,9 @@
 use super::{
     events::AudioEvent,
-    resources::AudioTimer,
+    resources::{AudioSettings, AudioTimer},
     systems::{
-        play_ingame_audio_system, play_intro_audio_system, play_music_audio_system,
-        play_priority_audio_system,
+        adjust_audio_volume_system, play_ingame_audio_system, play_intro_audio_system,
+        play_music_audio_system, play_priority_audio_system,
     },
     PriorityAudioEvent,
 };
@@ -20,6 +20,8 @@ impl Plugin for AudioPlugin {
         app.add_event::<AudioEvent>()
             .add_event::<PriorityAudioEvent>()
             .insert_resource(AudioTimer(Timer::from_seconds(0.05, true)))
+            .insert_resource(AudioSettings::default())
+            .add_system(adjust_audio_volume_system)
             .add_system(play_priority_audio_system)
             .add_system_set(
                 SystemSet::on_update(GameState::InGame)
