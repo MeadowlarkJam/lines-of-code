@@ -4,4 +4,6 @@ use bevy::prelude::*;
 pub struct Player;
 
 #[derive(Component)]
-pub struct PlayerRoot;
+pub struct PlayerRoot {
+    pub dist: f32,
+}

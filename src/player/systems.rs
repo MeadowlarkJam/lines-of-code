@@ -10,7 +10,6 @@ use crate::{
     events::Hit,
     object::Object,
     schedule::GameState,
-    starfield::{CustomMaterial, Starfield},
 };
 use bevy::{prelude::*, render::camera::RenderTarget};
 
@@ -35,7 +34,7 @@ pub fn spawn_player_system(mut commands: Commands, sprite_handles: Res<SpriteHan
         .spawn()
         .insert(Collider)
         .insert(Player)
-        .insert(PlayerRoot)
+        .insert(PlayerRoot { dist: 1.0 })
         .insert(Properties {
             size: 1,
             health: 100,
@@ -57,8 +56,6 @@ pub fn spawn_player_system(mut commands: Commands, sprite_handles: Res<SpriteHan
 pub fn move_player_system(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<&mut Transform, With<PlayerRoot>>,
-    mut starfield: Query<(&mut Starfield, &mut Transform), Without<PlayerRoot>>,
-    mut materials: ResMut<Assets<CustomMaterial>>,
     time: Res<Time>,
 ) {
     // The player's movement directions
@@ -84,19 +81,6 @@ pub fn move_player_system(
     // Move the player and clamp it to the screen
     player_transform.translation.x += movement_x * PLAYER_SPEED * time.delta_seconds();
     player_transform.translation.y += movement_y * PLAYER_SPEED * time.delta_seconds();
-
-    // Move the starfield to the player position
-    let (sf, mut tf) = starfield.single_mut();
-    tf.translation.x = player_transform.translation.x;
-    tf.translation.y = player_transform.translation.y;
-    if let Some(custom_material) = materials.get_mut(&sf.handle) {
-        custom_material.pos = Vec4::new(
-            player_transform.translation.x,
-            player_transform.translation.y,
-            0.0,
-            0.0,
-        );
-    }
 }
 
 pub fn rotate_player_system(
@@ -333,7 +317,7 @@ pub fn check_player_death_system(
 pub fn check_attachment_system(
     mut commands: Commands,
     player_query: Query<&GlobalTransform, (With<Player>, Without<PlayerRoot>)>,
-    mut player_root_query: Query<(Entity, &Transform), With<PlayerRoot>>,
+    mut player_root_query: Query<(Entity, &mut PlayerRoot, &Transform), With<PlayerRoot>>,
     mut attachable_query: Query<
         (Entity, &mut Transform),
         (With<Object>, Without<Player>, Without<PlayerRoot>),
@@ -341,7 +325,8 @@ pub fn check_attachment_system(
     mut event_writer: EventWriter<PlayerSizeIncreased>,
 ) {
     // We need the transform of the root, since everything is relative to it and when adding children we need to revert it first
-    let (root_entity, root_transform) = player_root_query.get_single_mut().unwrap();
+    let (root_entity, mut root_component, root_transform) =
+        player_root_query.get_single_mut().unwrap();
 
     for player_global_transform in &player_query {
         for (attachable_entity, mut attachable_transform) in attachable_query.iter_mut() {
@@ -363,6 +348,15 @@ pub fn check_attachment_system(
                 commands.entity(root_entity).add_child(attachable_entity);
                 commands.entity(attachable_entity).insert(Player);
                 commands.entity(attachable_entity).remove::<Object>();
+
+                // Calculate distance to center of root
+                // Should this be global transform?
+                let total_dist = root_transform
+                    .translation
+                    .distance(attachable_transform.translation);
+                if total_dist > root_component.dist {
+                    root_component.dist = total_dist;
+                }
 
                 // The new translations are offsets from the parent
                 let x = attachable_transform.translation.x - root_transform.translation.x;
