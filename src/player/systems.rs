@@ -5,7 +5,10 @@ use crate::{
     asset::SpriteHandles,
     audio::{AudioEvent, AudioType},
     camera::MainCamera,
-    components::{Bullet, Cannon, Collider, Projectile, Properties, Velocity, ZapEffect, Zapper, ShieldForcefield},
+    components::{
+        Bullet, Cannon, Collider, Projectile, Properties, ShieldForcefield, Velocity, ZapEffect,
+        Zapper,
+    },
     enemy::{Enemy, EnemyRoot},
     events::Hit,
     object::Object,
@@ -121,7 +124,10 @@ pub fn shoot_player_zapper_system(
     mut event_hit: EventWriter<Hit>,
     mut event_audio: EventWriter<AudioEvent>,
     mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Player>>,
-    shootable_query: Query<(&GlobalTransform, Entity, &Parent), (With<Enemy>, Without<ShieldForcefield>)>,
+    shootable_query: Query<
+        (&GlobalTransform, Entity, &Parent),
+        (With<Enemy>, Without<ShieldForcefield>),
+    >,
 ) {
     for (zapper_transform, mut zapper_stats) in zapper_query.iter_mut() {
         if zapper_stats.cooldown_timer > 0. {
@@ -157,6 +163,7 @@ pub fn shoot_player_zapper_system(
                             + (shootable_transform.compute_transform().translation.y
                                 - zapper_computed_transform.translation.y)
                                 * t;
+
                         commands
                             .spawn()
                             .insert_bundle(SpriteBundle {
@@ -188,7 +195,10 @@ pub fn shoot_player_cannon_system(
     mut event_hit: EventWriter<Hit>,
     mut event_audio: EventWriter<AudioEvent>,
     mut cannon_query: Query<(&GlobalTransform, &mut Cannon), With<Player>>,
-    shootable_query: Query<(&GlobalTransform, Entity, &Parent), (With<Enemy>, Without<ShieldForcefield>)>,
+    shootable_query: Query<
+        (&GlobalTransform, Entity, &Parent),
+        (With<Enemy>, Without<ShieldForcefield>),
+    >,
 ) {
     for (cannon_transform, mut cannon_stats) in cannon_query.iter_mut() {
         if cannon_stats.cooldown_timer > 0. {

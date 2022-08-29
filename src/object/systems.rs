@@ -2,7 +2,10 @@ use super::Object;
 use crate::{
     asset::SpriteHandles,
     audio::{AudioEvent, AudioType},
-    components::{Bullet, Cannon, Collider, Projectile, Properties, Shield, Velocity, Zapper, ShieldForcefield},
+    components::{
+        Bullet, Cannon, Collider, Projectile, Properties, Shield, ShieldForcefield, Velocity,
+        Zapper,
+    },
     enemy::Enemy,
     events::Hit,
     nodes::{spawn_cannon_node, spawn_empty_node, spawn_zapper_node},

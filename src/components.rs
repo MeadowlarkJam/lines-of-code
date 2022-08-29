@@ -20,8 +20,7 @@ pub struct Properties {
 
 // Powerup nodes
 #[derive(Component)]
-pub struct Shield {
-}
+pub struct Shield {}
 
 #[derive(Component)]
 pub struct ShieldForcefield {

@@ -283,7 +283,7 @@ pub fn shoot_enemy_cannon_system(
                 // If there is a hit
                 if distance < cannon_stats.range {
                     cannon_stats.cooldown_timer = cannon_stats.fire_rate;
-                    
+
                     event_audio.send(AudioEvent(AudioType::Explosion));
 
                     let velocity_x: f32 = (shootable_transform.compute_transform().translation.x

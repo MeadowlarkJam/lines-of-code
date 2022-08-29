@@ -37,7 +37,7 @@ pub fn spawn_shield_node<'a>(
         std::f32::consts::PI / 4.,
         Vec3::new(1.5, 1.5, 1.),
         field_asset,
-        shield_stats
+        shield_stats,
     );
     let shield_node = spawn_empty_node(commands, position, rotation, asset);
     commands
@@ -53,7 +53,7 @@ pub fn spawn_shield_forcefield<'a>(
     rotation: f32,
     scale: Vec3,
     asset: Handle<Image>,
-    stats: ShieldForcefield
+    stats: ShieldForcefield,
 ) -> Entity {
     let forcefield_node = commands
         .spawn()
@@ -71,7 +71,7 @@ pub fn spawn_shield_forcefield<'a>(
     commands
         .entity(forcefield_node)
         .insert(stats)
-        .insert(Enemy{})
+        .insert(Enemy {})
         .id()
 }
 
