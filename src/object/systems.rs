@@ -3,8 +3,7 @@ use crate::{
     asset::SpriteHandles,
     audio::{AudioEvent, AudioType},
     components::{
-        Bullet, Cannon, Collider, Projectile, Properties, Shield, ShieldForcefield, Velocity,
-        Zapper,
+        Bullet, Cannon, Collider, Projectile, Properties, ShieldForcefield, Velocity, Zapper,
     },
     enemy::Enemy,
     events::Hit,

@@ -1,13 +1,11 @@
 use crate::{
     asset::FontHandles,
+    colors::COLOR_TRANSPARENT,
     components::Properties,
     player::PlayerRoot,
     stats::Stats,
     ui::components::{OnIngameScreen, UiEnemiesAlive, UiHealth, UiKills, UiScore, UiSize},
-    ui::{
-        constants::COLOR_TRANSPARENT,
-        helper::{default_node_bundle_style, default_small_button_text_style},
-    },
+    ui::helper::{default_node_bundle_style, default_small_button_text_style},
 };
 use bevy::prelude::*;
 

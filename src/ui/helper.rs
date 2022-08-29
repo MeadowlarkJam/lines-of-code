@@ -1,7 +1,5 @@
-use super::constants::{
-    COLOR_ACCENT, COLOR_BUTTON_DEFAULT, COLOR_FOREGROUND, FONT_SIZE_LARGE, FONT_SIZE_MEDIUM,
-    FONT_SIZE_SMALL,
-};
+use super::constants::{COLOR_BUTTON_DEFAULT, FONT_SIZE_LARGE, FONT_SIZE_MEDIUM, FONT_SIZE_SMALL};
+use crate::colors::{COLOR_ACCENT, COLOR_FOREGROUND};
 use bevy::prelude::*;
 
 pub fn default_small_button_text_style(font: Handle<Font>) -> TextStyle {

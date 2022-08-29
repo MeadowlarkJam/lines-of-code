@@ -1,10 +1,10 @@
 use crate::{
     asset::FontHandles,
+    colors::COLOR_TRANSPARENT,
     schedule::{GameState, ScheduleQueue},
     stats::Stats,
     ui::{
         components::{EndScreenButtonAction, OnDeathScreen},
-        constants::COLOR_TRANSPARENT,
         helper::{
             accent_large_button_text_style, accent_medium_button_text_style, default_button_bundle,
             default_node_bundle_style, default_small_button_text_style,
