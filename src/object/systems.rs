@@ -2,7 +2,10 @@ use super::Object;
 use crate::{
     asset::SpriteHandles,
     audio::{AudioEvent, AudioType},
-    components::{Bullet, Cannon, Collider, Projectile, Properties, Shield, Velocity, Zapper},
+    components::{
+        Bullet, Cannon, Collider, Projectile, Properties, Shield, ShieldForcefield, Velocity,
+        Zapper,
+    },
     enemy::Enemy,
     events::Hit,
     nodes::{spawn_cannon_node, spawn_empty_node, spawn_zapper_node},
@@ -187,7 +190,7 @@ pub fn bullet_collision(
     mut event_hit: EventWriter<Hit>,
     mut event_audio: EventWriter<AudioEvent>,
     hittable_query: Query<
-        (Entity, &GlobalTransform, Option<&Enemy>),
+        (Entity, &GlobalTransform, Option<&Enemy>, &Parent),
         Or<(With<Enemy>, With<Player>)>,
     >,
     bullet_query: Query<(Entity, &Transform, &Bullet)>,
@@ -195,7 +198,7 @@ pub fn bullet_collision(
         (
             &GlobalTransform,
             &mut Visibility,
-            &mut Shield,
+            &mut ShieldForcefield,
             Option<&Enemy>,
         ),
         With<Parent>,
@@ -232,7 +235,7 @@ pub fn bullet_collision(
 
     // If no forcefield, check for enemy collision
     // On collision, do hit event and remove bullet
-    for (hittable_entity, hittable_transform, is_enemy) in hittable_query.iter() {
+    for (_hittable_entity, hittable_transform, is_enemy, parent) in hittable_query.iter() {
         for (bullet_entity, bullet_transform, bullet_stats) in bullet_query.iter() {
             let distance = hittable_transform
                 .compute_transform()
@@ -243,7 +246,7 @@ pub fn bullet_collision(
                     continue;
                 }
                 event_hit.send(Hit {
-                    target: hittable_entity,
+                    target: parent.get(),
                     damage: bullet_stats.damage,
                 });
                 event_audio.send(AudioEvent(AudioType::Hit));
@@ -273,7 +276,7 @@ pub fn clean_bullets(
 }
 
 pub fn forcefield_cooldown_system(
-    mut forcefield_query: Query<(&mut Shield, &mut Visibility), With<Parent>>,
+    mut forcefield_query: Query<(&mut ShieldForcefield, &mut Visibility), With<Parent>>,
     time: Res<Time>,
 ) {
     for (mut forcefield_stats, mut forcefield_visibility) in forcefield_query.iter_mut() {

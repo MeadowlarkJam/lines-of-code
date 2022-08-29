@@ -1,4 +1,4 @@
-use crate::components::*;
+use crate::{components::*, enemy::Enemy};
 use bevy::prelude::*;
 
 pub fn spawn_empty_node<'a>(
@@ -28,7 +28,7 @@ pub fn spawn_shield_node<'a>(
     rotation: f32,
     asset: Handle<Image>,
     field_asset: Handle<Image>,
-    shield_stats: Shield,
+    shield_stats: ShieldForcefield,
 ) -> Entity {
     // Spawn the forcefield and add it as a child to the shield
     let forcefield = spawn_shield_forcefield(
@@ -37,11 +37,12 @@ pub fn spawn_shield_node<'a>(
         std::f32::consts::PI / 4.,
         Vec3::new(1.5, 1.5, 1.),
         field_asset,
+        shield_stats,
     );
     let shield_node = spawn_empty_node(commands, position, rotation, asset);
     commands
         .entity(shield_node)
-        .insert(shield_stats)
+        .insert(Shield {})
         .add_child(forcefield)
         .id()
 }
@@ -52,6 +53,7 @@ pub fn spawn_shield_forcefield<'a>(
     rotation: f32,
     scale: Vec3,
     asset: Handle<Image>,
+    stats: ShieldForcefield,
 ) -> Entity {
     let forcefield_node = commands
         .spawn()
@@ -68,7 +70,8 @@ pub fn spawn_shield_forcefield<'a>(
 
     commands
         .entity(forcefield_node)
-        .insert(ShieldForcefield { active: true })
+        .insert(stats)
+        .insert(Enemy {})
         .id()
 }
 

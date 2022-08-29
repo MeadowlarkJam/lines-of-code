@@ -1,14 +1,18 @@
-use super::{constants::PLAYER_SPEED, Player, PlayerRoot, PlayerSizeIncreased};
+use std::time::Duration;
+
+use super::{constants::PLAYER_SPEED, Player, PlayerHistory, PlayerRoot, PlayerSizeIncreased};
 use crate::{
     asset::SpriteHandles,
     audio::{AudioEvent, AudioType, PriorityAudioEvent, PriorityAudioType},
     camera::MainCamera,
-    components::{Bullet, Cannon, Collider, Projectile, Properties, Velocity, ZapEffect, Zapper},
+    components::{
+        Bullet, Cannon, Collider, Projectile, Properties, ShieldForcefield, Velocity, ZapEffect,
+        Zapper,
+    },
     enemy::{Enemy, EnemyRoot},
     events::Hit,
     object::Object,
     schedule::{GameState, ScheduleQueue},
-    starfield::{CustomMaterial, Starfield},
 };
 use bevy::{prelude::*, render::camera::RenderTarget};
 
@@ -33,7 +37,7 @@ pub fn spawn_player_system(mut commands: Commands, sprite_handles: Res<SpriteHan
         .spawn()
         .insert(Collider)
         .insert(Player)
-        .insert(PlayerRoot)
+        .insert(PlayerRoot { dist: 1.0 })
         .insert(Properties {
             size: 1,
             health: 100,
@@ -55,8 +59,6 @@ pub fn spawn_player_system(mut commands: Commands, sprite_handles: Res<SpriteHan
 pub fn move_player_system(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<&mut Transform, With<PlayerRoot>>,
-    mut starfield: Query<(&mut Starfield, &mut Transform), Without<PlayerRoot>>,
-    mut materials: ResMut<Assets<CustomMaterial>>,
     time: Res<Time>,
 ) {
     // The player's movement directions
@@ -82,19 +84,6 @@ pub fn move_player_system(
     // Move the player and clamp it to the screen
     player_transform.translation.x += movement_x * PLAYER_SPEED * time.delta_seconds();
     player_transform.translation.y += movement_y * PLAYER_SPEED * time.delta_seconds();
-
-    // Move the starfield to the player position
-    let (sf, mut tf) = starfield.single_mut();
-    tf.translation.x = player_transform.translation.x;
-    tf.translation.y = player_transform.translation.y;
-    if let Some(custom_material) = materials.get_mut(&sf.handle) {
-        custom_material.pos = Vec4::new(
-            player_transform.translation.x,
-            player_transform.translation.y,
-            0.0,
-            0.0,
-        );
-    }
 }
 
 pub fn rotate_player_system(
@@ -135,7 +124,10 @@ pub fn shoot_player_zapper_system(
     mut event_hit: EventWriter<Hit>,
     mut event_audio: EventWriter<AudioEvent>,
     mut zapper_query: Query<(&GlobalTransform, &mut Zapper), With<Player>>,
-    shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Enemy>>,
+    shootable_query: Query<
+        (&GlobalTransform, Entity, &Parent),
+        (With<Enemy>, Without<ShieldForcefield>),
+    >,
 ) {
     for (zapper_transform, mut zapper_stats) in zapper_query.iter_mut() {
         if zapper_stats.cooldown_timer > 0. {
@@ -171,6 +163,7 @@ pub fn shoot_player_zapper_system(
                             + (shootable_transform.compute_transform().translation.y
                                 - zapper_computed_transform.translation.y)
                                 * t;
+
                         commands
                             .spawn()
                             .insert_bundle(SpriteBundle {
@@ -202,7 +195,10 @@ pub fn shoot_player_cannon_system(
     mut event_hit: EventWriter<Hit>,
     mut event_audio: EventWriter<AudioEvent>,
     mut cannon_query: Query<(&GlobalTransform, &mut Cannon), With<Player>>,
-    shootable_query: Query<(&GlobalTransform, Entity, &Parent), With<Enemy>>,
+    shootable_query: Query<
+        (&GlobalTransform, Entity, &Parent),
+        (With<Enemy>, Without<ShieldForcefield>),
+    >,
 ) {
     for (cannon_transform, mut cannon_stats) in cannon_query.iter_mut() {
         if cannon_stats.cooldown_timer > 0. {
@@ -270,15 +266,39 @@ pub fn shoot_player_cannon_system(
 pub fn check_hits_system(
     mut event_hit: EventReader<Hit>,
     mut player_query: Query<(&mut Properties, Entity), (With<PlayerRoot>, Without<EnemyRoot>)>,
+    mut element_query: Query<
+        (&mut Sprite, Option<&Player>, &Parent),
+        (Without<PlayerRoot>, Without<EnemyRoot>),
+    >,
     mut enemy_query: Query<(&mut Properties, Entity), (With<EnemyRoot>, Without<PlayerRoot>)>,
 ) {
     let (mut player_stats, player_entity) = player_query.single_mut();
     for hit in event_hit.iter() {
         if hit.target == player_entity {
             player_stats.health = player_stats.health.saturating_sub(hit.damage);
+            // Tint player red
+            for (mut sprite, is_player, _) in element_query.iter_mut() {
+                if is_player.is_some() {
+                    sprite.color = Color::rgb(1., 0., 0.);
+                }
+            }
         } else if let Ok((mut enemy_properties, _)) = enemy_query.get_mut(hit.target) {
             enemy_properties.health = enemy_properties.health.saturating_sub(hit.damage);
+            // Tint enemy yellow
+            for (mut sprite, _, parent) in element_query.iter_mut() {
+                if parent.get() == hit.target {
+                    sprite.color = Color::rgb(1., 1., 0.);
+                }
+            }
         }
+    }
+}
+
+pub fn reset_sprite_tint_system(
+    mut sprite_query: Query<&mut Sprite, Or<(With<Player>, With<Enemy>)>>,
+) {
+    for mut sprite in sprite_query.iter_mut() {
+        sprite.color = Color::rgb(1., 1., 1.);
     }
 }
 
@@ -312,7 +332,7 @@ pub fn check_player_death_system(
 pub fn check_attachment_system(
     mut commands: Commands,
     player_query: Query<&GlobalTransform, (With<Player>, Without<PlayerRoot>)>,
-    mut player_root_query: Query<(Entity, &Transform), With<PlayerRoot>>,
+    mut player_root_query: Query<(Entity, &mut PlayerRoot, &Transform), With<PlayerRoot>>,
     mut attachable_query: Query<
         (Entity, &mut Transform),
         (With<Object>, Without<Player>, Without<PlayerRoot>),
@@ -320,7 +340,8 @@ pub fn check_attachment_system(
     mut event_writer: EventWriter<PlayerSizeIncreased>,
 ) {
     // We need the transform of the root, since everything is relative to it and when adding children we need to revert it first
-    let (root_entity, root_transform) = player_root_query.get_single_mut().unwrap();
+    let (root_entity, mut root_component, root_transform) =
+        player_root_query.get_single_mut().unwrap();
 
     for player_global_transform in &player_query {
         for (attachable_entity, mut attachable_transform) in attachable_query.iter_mut() {
@@ -342,6 +363,15 @@ pub fn check_attachment_system(
                 commands.entity(root_entity).add_child(attachable_entity);
                 commands.entity(attachable_entity).insert(Player);
                 commands.entity(attachable_entity).remove::<Object>();
+
+                // Calculate distance to center of root
+                // Should this be global transform?
+                let total_dist = root_transform
+                    .translation
+                    .distance(attachable_transform.translation);
+                if total_dist > root_component.dist {
+                    root_component.dist = total_dist;
+                }
 
                 // The new translations are offsets from the parent
                 let x = attachable_transform.translation.x - root_transform.translation.x;
@@ -374,5 +404,19 @@ pub fn update_player_properties_system(
     if player_size_increase > 0 {
         properties.size += player_size_increase;
         properties.health += player_size_increase * 10;
+    }
+}
+
+pub fn update_player_history_system(
+    query: Query<&Transform, With<PlayerRoot>>,
+    mut player_history: ResMut<PlayerHistory>,
+    time: Res<Time>,
+) {
+    player_history
+        .timer
+        .tick(Duration::from_secs_f32(time.delta_seconds()));
+    if player_history.timer.just_finished() {
+        let transform = query.single();
+        player_history.update_position(transform.translation);
     }
 }
