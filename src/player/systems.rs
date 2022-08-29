@@ -420,3 +420,24 @@ pub fn update_player_history_system(
         player_history.update_position(transform.translation);
     }
 }
+
+pub fn explode_player_system(
+    mut commands: Commands,
+    mut player_elements: Query<(Entity, &GlobalTransform, &mut Transform), (With<Player>, Without<PlayerRoot>)>
+) {
+    for (entity, global_transform, mut transform) in player_elements.iter_mut() {
+        let old_global_transform = global_transform.compute_transform().translation;
+        
+        commands.entity(entity)
+        .remove::<Parent>()
+        .remove::<Player>()
+        .insert(Object)
+        .insert(Velocity {
+            x: rand::random::<f32>() * 6. - 3.,
+            y: rand::random::<f32>() * 6. - 3.,
+            rotation: rand::random::<f32>() * 0.2,
+        });
+
+        transform.translation = old_global_transform;
+    }
+}
