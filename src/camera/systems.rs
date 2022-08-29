@@ -5,11 +5,13 @@ use crate::{
 };
 use bevy::prelude::*;
 
-pub fn spawn_camera_system(mut commands: Commands) {
+use super::resources::RandomNumberResource;
+
+pub fn spawn_camera_system(mut commands: Commands, random: Res<RandomNumberResource>) {
     commands
         .spawn_bundle(Camera2dBundle {
             transform: Transform {
-                translation: Vec3::new(0.0, 0.0, 1.0),
+                translation: Vec3::new(random.rand1, random.rand2, 1.0),
                 scale: Vec3::new(0.25, 0.25, 0.25),
                 ..default()
             },

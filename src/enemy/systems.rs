@@ -42,7 +42,7 @@ pub fn check_enemy_death_system(
                             cooldown: 3.,
                             cooldown_timer: 0.,
                         },
-                        false
+                        false,
                     );
 
                     commands
