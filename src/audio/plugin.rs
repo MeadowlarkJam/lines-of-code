@@ -19,7 +19,7 @@ impl Plugin for AudioPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<AudioEvent>()
             .add_event::<PriorityAudioEvent>()
-            .insert_resource(AudioTimer(Timer::from_seconds(0.05, true)))
+            .insert_resource(AudioTimer(Timer::from_seconds(0.016, true)))
             .insert_resource(AudioSettings::default())
             .add_system(adjust_audio_volume_system)
             .add_system(play_priority_audio_system)

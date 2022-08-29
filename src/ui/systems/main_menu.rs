@@ -19,31 +19,9 @@ pub fn spawn_main_menu_ui_system(
     audio_settings: Res<AudioSettings>,
 ) {
     commands
-        .spawn_bundle(
-            TextBundle::from_section(
-                "Escape Pod",
-                accent_large_button_text_style(font_handles.default.clone()),
-            )
-            .with_style(Style {
-                align_self: AlignSelf::Center,
-                margin: UiRect::all(Val::Auto),
-                ..default()
-            })
-            .with_text_alignment(TextAlignment::CENTER),
-        )
-        .insert(OnMainMenuScreen);
-
-    commands
         .spawn_bundle(NodeBundle {
             style: Style {
-                align_self: AlignSelf::Center,
-                position: UiRect::new(
-                    Val::Undefined,
-                    Val::Undefined,
-                    Val::Percent(60.0),
-                    Val::Undefined,
-                ),
-                size: Size::new(Val::Percent(100.0), Val::Undefined),
+                position: UiRect::new(Val::Px(0.0), Val::Px(0.0), Val::Undefined, Val::Undefined),
                 ..default_node_bundle_style()
             },
             color: COLOR_TRANSPARENT.into(),
@@ -51,6 +29,24 @@ pub fn spawn_main_menu_ui_system(
         })
         .insert(OnMainMenuScreen)
         .with_children(|parent| {
+            parent.spawn_bundle(
+                TextBundle::from_section(
+                    "Escape Pod",
+                    accent_large_button_text_style(font_handles.default.clone()),
+                )
+                .with_style(Style {
+                    align_self: AlignSelf::Center,
+                    margin: UiRect::new(
+                        Val::Undefined,
+                        Val::Undefined,
+                        Val::Undefined,
+                        Val::Px(50.0),
+                    ),
+                    ..default()
+                })
+                .with_text_alignment(TextAlignment::CENTER),
+            );
+
             // Play button
             parent
                 .spawn_bundle(default_button_bundle())
