@@ -1,11 +1,12 @@
 use crate::{
     asset::FontHandles,
+    colors::COLOR_TRANSPARENT,
     schedule::{GameState, ScheduleQueue},
+    ui::helper::default_small_button_text_style,
     ui::{
         components::{OnPausedScreen, PausedScreenButtonAction},
         helper::{default_button_bundle, default_node_bundle_style},
     },
-    ui::{constants::COLOR_TRANSPARENT, helper::default_small_button_text_style},
 };
 use bevy::{app::AppExit, prelude::*};
 

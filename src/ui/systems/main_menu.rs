@@ -1,13 +1,14 @@
 use crate::{
     asset::FontHandles,
+    colors::COLOR_TRANSPARENT,
     schedule::{GameState, ScheduleQueue},
+    ui::helper::default_node_bundle_style,
     ui::{
         components::{MainMenuButtonAction, OnMainMenuScreen},
         helper::{
             accent_large_button_text_style, default_button_bundle, default_small_button_text_style,
         },
     },
-    ui::{constants::COLOR_TRANSPARENT, helper::default_node_bundle_style},
 };
 use bevy::{app::AppExit, prelude::*};
 

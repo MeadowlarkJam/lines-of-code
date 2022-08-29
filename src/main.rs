@@ -10,6 +10,7 @@ mod events;
 mod nodes;
 use events::*;
 use starfield::CustomMaterial;
+mod colors;
 
 // Plugins
 mod asset;

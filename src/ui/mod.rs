@@ -4,4 +4,4 @@ mod helper;
 mod plugin;
 mod systems;
 
-pub use plugin::UiPlugin;
+pub use self::plugin::UiPlugin;

@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use super::{constants::PLAYER_SPEED, Player, PlayerHistory, PlayerRoot, PlayerSizeIncreased};
+use crate::colors::{COLOR_ENEMY, COLOR_PLAYER};
 use crate::{
     asset::SpriteHandles,
     audio::{AudioEvent, AudioType, PriorityAudioEvent, PriorityAudioType},
@@ -173,7 +174,7 @@ pub fn shoot_player_zapper_system(
                                     ..default()
                                 },
                                 sprite: Sprite {
-                                    color: Color::rgb(1., 1., 0.),
+                                    color: COLOR_PLAYER,
                                     ..default()
                                 },
                                 ..default()
@@ -238,7 +239,7 @@ pub fn shoot_player_cannon_system(
                                 ..default()
                             },
                             sprite: Sprite {
-                                color: Color::rgb(1., 1., 0.),
+                                color: COLOR_PLAYER,
                                 ..default()
                             },
                             ..default()
@@ -279,7 +280,7 @@ pub fn check_hits_system(
             // Tint player red
             for (mut sprite, is_player, _) in element_query.iter_mut() {
                 if is_player.is_some() {
-                    sprite.color = Color::rgb(1., 0., 0.);
+                    sprite.color = COLOR_ENEMY;
                 }
             }
         } else if let Ok((mut enemy_properties, _)) = enemy_query.get_mut(hit.target) {
@@ -287,7 +288,7 @@ pub fn check_hits_system(
             // Tint enemy yellow
             for (mut sprite, _, parent) in element_query.iter_mut() {
                 if parent.get() == hit.target {
-                    sprite.color = Color::rgb(1., 1., 0.);
+                    sprite.color = COLOR_PLAYER;
                 }
             }
         }

@@ -3,13 +3,14 @@ use super::spawners::{spawn_boomy, spawn_shieldy, spawn_zappy};
 use super::{Enemy, EnemyKilled, EnemyRoot, EnemySpawned, EnemyType};
 use crate::asset::SpriteHandles;
 use crate::audio::{AudioEvent, AudioType};
+use crate::colors::COLOR_ENEMY;
 use crate::components::{Bullet, Cannon, Projectile, ShieldForcefield};
 use crate::nodes::{spawn_cannon_node, spawn_zapper_node};
 use crate::object::Object;
 use crate::player::{PlayerHistory, PlayerRoot};
 use crate::stats::Stats;
 use crate::{
-    components::{Properties, Shield, Velocity, ZapEffect, Zapper},
+    components::{Properties, Velocity, ZapEffect, Zapper},
     events::Hit,
     nodes::{spawn_empty_node, spawn_shield_node},
     player::Player,
@@ -216,7 +217,7 @@ pub fn shoot_zappy_enemy_system(
                                         ..default()
                                     },
                                     sprite: Sprite {
-                                        color: Color::rgb(1., 0., 0.),
+                                        color: COLOR_ENEMY,
                                         ..default()
                                     },
                                     ..default()
@@ -249,7 +250,7 @@ pub fn shoot_zappy_enemy_system(
                                 ..default()
                             },
                             sprite: Sprite {
-                                color: Color::rgb(1., 0., 0.),
+                                color: COLOR_ENEMY,
                                 ..default()
                             },
                             ..default()
@@ -303,7 +304,7 @@ pub fn shoot_enemy_cannon_system(
                                 ..default()
                             },
                             sprite: Sprite {
-                                color: Color::rgb(1., 0., 0.),
+                                color: COLOR_ENEMY,
                                 ..default()
                             },
                             ..default()
